@@ -130,12 +130,6 @@ inputFile <- args[2]
 
 ##### Set up output #####
 outputDir = file.path(moduleDir,"output/")
-RYGB.bmi.lm.file <- "RYGB_BMI_LM_changes_over_time.tsv"
-SG.bmi.lm.file <- "SG_BMI_LM_changes_over_time.tsv"
-surgerytype.bmi.wilcox.file <- "SurgeryType_BMI_wilcox_at_each_timepoint.tsv"
-surgerytype.bmi.loss.wilcox.file <- "SurgeryType_BMI_Loss_from_BL_wilcox_at_each_timepoint.tsv"
-Site.bmi.wilcox.file <- "Site_BMI_wilcox_at_each_timepoint.tsv"
-updated.weightFile <- "updated_weight.tsv"
 
 ##### Read in tables #####
 file.path <- paste0(inputDir, inputFile)
@@ -165,7 +159,7 @@ lm.df$Metric <- "BMI"
 lm.df$Adj_pvalue <- p.adjust(lm.df$p.value, method = "BH")
 lm.df$p_value <- roundP(lm.df$Adj_pvalue)
 
-file.path <- paste0(outputDir,RYGB.bmi.lm.file)
+file.path <- paste0(outputDir,"RYGB_BMI_LM_changes_over_time.tsv")
 write.table(lm.df, file.path,sep="\t",quote = FALSE, row.names = FALSE)
 
 ##### SG patient BMI over time - Mixed Linear Model #####
@@ -182,12 +176,12 @@ lm.df$Adj_pvalue <- p.adjust(lm.df$p.value, method = "BH")
 lm.df$p_value <- roundP(lm.df$Adj_pvalue)
 
 
-file.path <- paste0(outputDir,SG.bmi.lm.file)
+file.path <- paste0(outputDir, "SG_BMI_LM_changes_over_time.tsv")
 write.table(lm.df, file.path,sep="\t",quote = FALSE, row.names = FALSE)
 
 myTable$Timepoint <- factor(myTable$Timepoint)
 
-model <- aov(BMI_kgm2 ~ Surgery * Timepoint + Error(PatientID / Timepoint), data = myTable)
+# model <- aov(BMI_kgm2 ~ Surgery * Timepoint + Error(PatientID / Timepoint), data = myTable)
 ##### BMI differences in surgery type at each timepoint - wilcox #####
 months <- c(0, 1, 6, 12, 18, 24)
 
@@ -242,8 +236,8 @@ for (i in 1:nrow(result.df)) {
   index <- index + 1
   
 }
-
-file.path <- paste0(outputDir,surgerytype.bmi.wilcox.file)
+result.df$Conclusion <- bio.conc
+file.path <- paste0(outputDir,"SurgeryType_BMI_wilcox_at_each_timepoint.tsv")
 write.table(result.df, file.path,sep="\t",quote = FALSE, row.names = FALSE)
 
 ##### BMI loss over time between surgery types - wilcox #####
@@ -312,7 +306,8 @@ for (i in 1:nrow(result.df)) {
   
 }
 
-file.path <- paste0(outputDir,surgerytype.bmi.loss.wilcox.file)
+result.df$Conclusion <- bio.conc
+file.path <- paste0(outputDir,"SurgeryType_BMI_Loss_from_BL_wilcox_at_each_timepoint.tsv")
 write.table(result.df, file.path,sep="\t",quote = FALSE, row.names = FALSE)
 
 ##### BMI differences in location at each timepoint - wilccox #####
@@ -369,17 +364,18 @@ for (i in 1:nrow(result.df)) {
   
 }
 
-file.path <- paste0(outputDir,Site.bmi.wilcox.file)
+result.df$Conclusion <- bio.conc
+file.path <- paste0(outputDir,"Site_BMI_wilcox_at_each_timepoint.tsv")
 write.table(result.df, file.path,sep="\t",quote = FALSE, row.names = FALSE)
 
-file.path <- paste0(outputDir, updated.weightFile)
+file.path <- paste0(outputDir, "updated_weight.tsv")
 write.table(myTable, file.path,sep="\t",quote = FALSE, row.names = FALSE)
 
 
 ##### Surgery BMI_kgm2 over time boxplots #####
 metricName <- "BMI_kgm2"
 metric <- myTable[,which(colnames(myTable) == metricName)]
-y.lab <- "BMI (kg/m2)"
+y.lab <- "BMI (kg/m^2)"
 
 Surgery <- myTable$Surgery
 Timepoint <- factor(myTable$time)

@@ -31,13 +31,13 @@ moduleRoot <- "Taxa_over_time"
 R <- sessionInfo()
 message(R$R.version$version.string)
 
-library(stringr); message("stringr: Version ", packageVersion("stringr"))
-library(ggpubr); message("ggpubr: Version ", packageVersion("ggpubr"))
-library(tidyr); message("tidyr: Version ", packageVersion("tidyr"))
-library(rstatix); message("rstatix: Version ", packageVersion("rstatix"))
-library(nlme); message("nlme: Version ", packageVersion("nlme"))
-library(data.table); message("data.table: Version ", packageVersion("data.table"))
-library(gridExtra); message("gridExtra: Version ", packageVersion("gridExtra"))
+library(stringr); message(">>> stringr: Version ", packageVersion("stringr"), "\n")
+library(ggpubr); message(">>> ggpubr: Version ", packageVersion("ggpubr"), "\n")
+library(tidyr); message(">>> tidyr: Version ", packageVersion("tidyr"), "\n")
+library(rstatix); message(">>> rstatix: Version ", packageVersion("rstatix"), "\n")
+library(nlme); message(">>> nlme: Version ", packageVersion("nlme"), "\n")
+library(data.table); message(">>> data.table: Version ", packageVersion("data.table"), "\n")
+library(gridExtra); message(">>> gridExtra: Version ", packageVersion("gridExtra"), "\n")
 
 ##### Set up working environment #####
 args <- commandArgs(trailingOnly = TRUE)
@@ -128,8 +128,6 @@ if (args[1] == "BLJ") {
 pipeRoot = dirname(dirname(getwd()))
 moduleDir <- dirname(getwd())
 
-
-
 ##### Set up functions file #####
 funcScript <- paste0(moduleDir,"/resources/functions.R")
 source(funcScript)
@@ -149,7 +147,8 @@ inputDir = paste0(pipeRoot,"/",str_subset(dir(pipeRoot), prevModule),"/output/")
 logCountFile <- paste0("_LogNormalizedCounts_", classifier, ".tsv")
 month.labs <- c("Baseline", "1 month post-op", "6 months post-op", "12 months post-op",
                 "18 months post-op", "24 months post-op")
-divisions <- c("Quintile", "Quartile", "Tertile", "Half")
+# divisions <- c("Quintile", "Quartile", "Tertile", "Half")
+divisions <- c("Tertile")
 
 ##### Set up output #####
 outputDir = file.path(moduleDir,"output/")
@@ -163,8 +162,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
 
   file.path <- paste0(inputDir,level, logCountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, row.names = 1, check.names = FALSE)
-  # logCounts <- read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
+  logCounts <- read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
 
   startAbundanceIndex <- which(colnames(logCounts)=="ResponderStatus")+1
 
@@ -318,12 +316,12 @@ for (level in levels) {
   outputLevel <- paste0(outputDir, level, "/")
   
   file.path <-  paste0(inputDir,level, logCountFile)
-  logCounts <- read.table(file.path, sep="\t",header = TRUE, row.names = 1,check.names = FALSE)
+  logCounts <- read.table(file.path, sep="\t",header = TRUE, check.names = FALSE)
   logCounts2 <- logCounts[logCounts$time %in% included,]
   
   
   file.path <- paste0(outputLevel, level, pVal.FileName)
-  pVal.df <- read.table(file.path, sep="\t",header = TRUE, row.names = 1,check.names = FALSE)
+  pVal.df <- read.table(file.path, sep="\t",header = TRUE, check.names = FALSE)
   pVal.df$pFinal <- roundP(pVal.df$Adj_pValue.MLM)
   
   ordered <- pVal.df[order(pVal.df$Adj_pValue.MLM),]
@@ -331,7 +329,7 @@ for (level in levels) {
   
   for (row in 1:nrow(ordered)) {
     
-    bugName <- rownames(ordered[row,])
+    bugName <- ordered$bugName[row]
     
     bugCol <- logCounts2[,which(colnames(logCounts2) == bugName)]
     month <- logCounts2$time
@@ -362,6 +360,9 @@ for (level in levels) {
     
     plot <- plot +
       labs(title = paste0(bugName, " (", ordered$pFinal[row], ")"))
+
+    plot <- plot +
+      labs(caption = "Pairwise comparisons calculated using t-tests")
     
     plot <- plot +
       stat_pvalue_manual(
@@ -390,7 +391,7 @@ for (level in levels) {
   
 } # for (level in levels)
 
-##### RYGB v SG at each timepoint #####
+##### RYGB v SG at each timepoint (t-test) #####
 for (level in levels) {
   
   outputLevel <- paste0(outputDir, level, "/")
@@ -1002,7 +1003,7 @@ for (level in levels) {
     
     # Output plot
     file.path <- paste0(outputWLdivisions, level, "_by_Top_Bottom_", division, "_ttest_BLto", included[length(included)], "M_Boxplots_", classifier, ".pdf")
-    pdf(file.path, width = 7, height = 5)
+    pdf(file.path, width = 10, height = 5)
     for (i in 1:length(plotList)) {
       grid.arrange(plotList[[i]], ncol = 1, nrow = 1)
     }

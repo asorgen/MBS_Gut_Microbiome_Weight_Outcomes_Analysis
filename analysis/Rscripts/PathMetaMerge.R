@@ -8,6 +8,7 @@ rm(list=ls())
 ANALYSIS <- "microbiome_n124"
 params <- vector()
 params <- c(params, "~/git/BS_MicrobiomeAnalysis_2022")
+params <- c(params, "HumanN2")
 params <- c(params, 0)
 params <- c(params, 1)
 params <- c(params, 6)
@@ -68,11 +69,11 @@ if (args[1] == "BLJ") {
   rm(gitInput)
   module <- moduleRoot
   
-  if (args[2] == "MetaPhlAn2" | args[2] == "Kraken2") {
+  if (args[2] == "MetaPhlAn2" | args[2] == "Kraken2" | args[2] == "HumanN2") {
     module <- paste0(args[2], "_", module)
   } 
   
-  if (args[3] %in% c("Quintile", "Quartile", "Thirds", "Half")) {
+  if (args[3] %in% c("Quintile", "Quartile", "Tertile", "Half")) {
     module <- paste0(module, "_", args[3])
   } 
   
@@ -141,7 +142,8 @@ ANALYSIS <- str[length(str)]
 rm(str)
 
 ##### Set up input #####
-included <- args[2:length(args)]
+classifier <- args[2]
+included <- args[3:length(args)]
 
 inputDir = paste0(pipeRoot,"/input/")
 humanN2File <- "humanN2_pathabundance_cpm.tsv"
@@ -216,4 +218,4 @@ humanN2 <- cbind(SampleID, humanN2)
 # humanN2 <- cbind(PatientID, humanN2)
 
 df <- merge(metaTable, humanN2, by = "SampleID")
-write.table(df, paste0(outputDir,"metaHumanN.tsv"),sep="\t",quote = FALSE, row.names = FALSE)
+write.table(df, paste0(outputDir, "PathAbundance_CPM_", classifier, ".tsv"),sep="\t",quote = FALSE, row.names = FALSE)

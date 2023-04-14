@@ -15,7 +15,7 @@ params <- c(params, 6)
 params <- c(params, 12)
 params <- c(params, 18)
 params <- c(params, 24)
-# end <- params[length(params)]
+# endM <- params[length(params)]
 
 levels <- vector()
 levels <- c(levels, "phylum")
@@ -79,10 +79,10 @@ if (args[1] == "BLJ") {
   module <- moduleRoot
   
   if (args[2] == "MetaPhlAn2" | args[2] == "Kraken2") {
-    module <- paste0(args[2], module)
+    module <- paste0(args[2], "_", module)
   } 
   
-  if (exists("end") == TRUE) {
+  if (exists("endM") == TRUE) {
     module <- paste0(module, "_BLto", end, "M")
   }
   
@@ -165,7 +165,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
   
   file.path <- paste0(inputDir,level, logCountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, row.names = 1, check.names = FALSE)
+  logCounts<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
   # logCounts <- read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
   
   startAbundanceIndex <- which(colnames(logCounts)=="ResponderStatus")+1
@@ -184,7 +184,7 @@ for (level in levels) {
     
     bug<-myT[,i]
     
-    if (mean(bug>0, na.rm = TRUE) > 0.1){
+    if ( mean(bug > 0, na.rm = TRUE) > 0.1 ){
       
       df<-data.frame(bug,PatientID, Timepoint, Surgery)
       df <- df[df$Timepoint %in% included,]

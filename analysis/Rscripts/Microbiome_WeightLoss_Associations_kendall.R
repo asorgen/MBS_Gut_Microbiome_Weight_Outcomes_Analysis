@@ -79,7 +79,7 @@ if (args[1] == "BLJ") {
   module <- moduleRoot
   
   if (args[2] == "MetaPhlAn2" | args[2] == "Kraken2") {
-    module <- paste0(args[2], module)
+    module <- paste0(args[2], "_", module)
   } 
   
   if (exists("end_month") == TRUE) {
@@ -109,7 +109,7 @@ if (args[1] == "BLJ") {
   }
   
   files <- list.files(outputDir, recursive = TRUE, full.names = TRUE)
-  file.remove(files)
+  # file.remove(files)
   
   resourcesDir <- paste0(moduleDir, "resources/")
   if (any(dir(moduleDir) == "resources") == FALSE) {
@@ -156,6 +156,8 @@ month.labs <- c("Baseline", "1 month post-op", "6 months post-op", "12 months po
                 "18 months post-op", "24 months post-op")
 
 factorLevels <- c("BL-1M", "BL-6M", "BL-12M", "BL-18M", "BL-24M")
+surgeryPalette <- c("steelblue", "gold")
+
 ##### Kendall correlation #####
 for (level in levels) {
 
@@ -165,7 +167,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
 
   file.path <- paste0(inputDir,level, CountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, row.names = 1, check.names = FALSE)
+  logCounts<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
 
   startAbundanceIndex <- which(colnames(logCounts)=="ResponderStatus")+1
 
@@ -279,7 +281,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
   
   file.path <- paste0(inputDir,level, CountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, row.names = 1, check.names = FALSE)
+  logCounts<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
   
   file.path <- paste0(outputLevel, level, "_taxa_by_weight_loss_ken_spear_results_BLto", included[length(included)], "M.tsv")
   stats.df<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
@@ -292,6 +294,7 @@ for (level in levels) {
   PatientID <- logCounts$PatientID
   Timepoint_kg <- paste0("BL-", logCounts$time)
   Percent_Loss_kg <- logCounts$Percent_Loss_kg
+  SurgeryType <- logCounts$Surgery
   
   plotList <- list()
   dFrame <- data.frame()
@@ -306,7 +309,7 @@ for (level in levels) {
     
     if ( mean(bug > 0, na.rm = TRUE) > 0.1 ) {
       
-      df <- data.frame( bug, PatientID, Timepoint_kg, Percent_Loss_kg )
+      df <- data.frame( bug, PatientID, Timepoint_kg, Percent_Loss_kg, SurgeryType )
       
       for (t in 1:length(included)) {
         
@@ -340,11 +343,11 @@ for (level in levels) {
             df2 <- df[ df$Timepoint_kg == PWL_BL_xM, ]
             df2 <- na.omit(df2)
             
-            plot <- ggscatter(df2, x = "bug_xM", y = "Percent_Loss_kg",
-                              shape = 21, size = 2.5, # Points shape and size
-                              add = "reg.line",  # Add regression line
-                              conf.int = TRUE, # Add confidence interval
-                              add.params = list(fill = "lightgray")
+            plot <- ggscatter(df2, x = "bug_xM", y = "Percent_Loss_kg", color = "SurgeryType", palette = surgeryPalette,
+                              shape = 19, size = 2.5 # Points shape and size
+                              # add = "reg.line",  # Add regression line
+                              # conf.int = TRUE, # Add confidence interval
+                              # add.params = list(fill = "lightgray")
             ); plot
             
             x.lab <- paste0(bugName, " relative abundance at ", month.labs[t])
@@ -516,7 +519,7 @@ for (level in levels) {
     for (w in 2:length(included)) {
       
       stats.df_2 <- stats.df_1[stats.df_1$Weight_Loss_Timepoint == paste0("BL-", included[w]), ]
-      nSignif[index] <- ifelse( nrow(stats.df_2) > 0, length(which(stats.df_2$pAdj < 0.05)), NA )
+      nSignif[index] <- ifelse( nrow(stats.df_2) > 0, length(which(stats.df_2$pAdj_Kendall < 0.05)), NA )
       TaxaTime[index] <- month.labs[t]
       WeightLossTime[index] <- paste0("BL-", included[w], "M")
       index <- index + 1

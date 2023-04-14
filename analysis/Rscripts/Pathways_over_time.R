@@ -149,12 +149,12 @@ divisions <- "Tertile"
 ##### Set up output #####
 outputDir = file.path(moduleDir,"output/")
 
-##### Univariate linear model #####
-message(paste0("\n***** Starting univariate analysis *****\n"))
-
+##### Read in file #####
 file.path <- paste0(inputDir, inputFileName)
 logCounts <- read.delim(file.path,sep="\t",header = TRUE,check.names = FALSE)
 
+##### Univariate linear model #####
+message(paste0("\n***** Starting univariate analysis *****\n"))
 startAbundanceIndex <- which(colnames(logCounts)=="ResponderStatus")+1
 
 # Parse out metadata from counts
@@ -478,6 +478,7 @@ for (division in divisions) {
   Timepoint <- logCounts$time
   Surgery <- logCounts$Surgery
   Weight_kg <- logCounts$Weight_kg
+  Division <- logCounts[,divMonth]
   
   pathName <- vector()
   pVal_Timepoint <- vector()
@@ -492,7 +493,7 @@ for (division in divisions) {
     
     if (mean(path>0, na.rm = TRUE)>0.1){
       
-      df<-data.frame(path,PatientID, Timepoint, Surgery, Weight_kg)
+      df<-data.frame(path,PatientID, Timepoint, Surgery, Weight_kg, Division)
       df <- na.omit(df)
       df$Timepoint <- as.factor(df$Timepoint)
       
@@ -502,6 +503,9 @@ for (division in divisions) {
       pVal_Timepoint[index] <- fit$"p-value"[2]
       pVal_Surgery[index] <- fit$"p-value"[3]
       pVal_Weight_kg[index] <- fit$"p-value"[4]
+      
+      mlm <- lm( path ~ Division, data = df )
+      fit<-anova(mlm)
       
       pathName[index]<-colnames(myT)[i]
       
@@ -549,6 +553,7 @@ for (division in divisions) {
     legend("topright", legend=c("SG", "RYGB"),
            col=c("red", "blue"), pch = 21, cex=0.8)
     
+
     title.lab <- paste0( dFrame$pathName[i] , "\nTimepoint (adj p = ", format(dFrame$Adj_pVal_Timepoint[i], length = 3), ")")
     plot(  logCounts$time, logCounts[,dataCol],
            ylab =dFrame$pathName[i] ,
@@ -617,6 +622,75 @@ for (division in divisions) {
     }
   }
   dev.off()
+  
+  file.path <- paste0(outputDir, "Pathway_by_Weight_kg__mixedLM_", division, "_BLto", included[length(included)], "M_", classifier, "_PLOTS.pdf")
+  pdf(file.path)
+  
+  par(mfrow=c(1,1))
+  
+  for( i in 1:nrow(dFrame)) {
+    dataCol <- which( dFrame$pathName[i] == names(logCounts) )
+    
+    if (dFrame$Adj_pVal_Weight_kg[i] < 0.05) {
+      
+      if ( grepl("|", dFrame$pathName[i]) == TRUE) {
+        pathway <- sapply(strsplit(dFrame$pathName[i], "\\|"), "[", 1)
+        taxa <- sapply(strsplit(dFrame$pathName[i], "\\|"), "[", 2)
+        pathTaxa <- paste0(pathway, "\n", taxa)
+      } else {
+        pathTaxa <- dFrame$pathName[i]
+      }
+      
+      title.lab <- paste0( pathTaxa , "\nWeight (adj p = ", format(dFrame$Adj_pVal_Weight_kg[i], length = 3), ")")
+      plot(  logCounts$Weight_kg, logCounts[,dataCol],
+             ylab ="Pathway" ,
+             xlab="Weight (kg)",
+             main=title.lab,
+             cex.main = 1 ,
+             col = ifelse( logCounts$Surgery == "SG", "red", "blue" )
+      )
+      legend("topright", legend=c("SG", "RYGB"),
+             col=c("red", "blue"), pch = 21, cex=0.8)
+      
+    }
+    
+  }
+  dev.off()
+  
+  file.path <- paste0(outputDir, "Pathway_by_Timepoint__mixedLM_", division, "_BLto", included[length(included)], "M_", classifier, "_PLOTS.pdf")
+  pdf(file.path)
+  
+  par(mfrow=c(1,1))
+  
+  for( i in 1:nrow(dFrame)) {
+    dataCol <- which( dFrame$pathName[i] == names(logCounts) )
+    
+    if (dFrame$Adj_pVal_Timepoint[i] < 0.05) {
+      
+      if ( grepl("|", dFrame$pathName[i]) == TRUE) {
+        pathway <- sapply(strsplit(dFrame$pathName[i], "\\|"), "[", 1)
+        taxa <- sapply(strsplit(dFrame$pathName[i], "\\|"), "[", 2)
+        pathTaxa <- paste0(pathway, "\n", taxa)
+      } else {
+        pathTaxa <- dFrame$pathName[i]
+      }
+      
+      title.lab <- paste0( pathTaxa , "\nTimepoint (adj p = ", format(dFrame$Adj_pVal_Timepoint[i], length = 3), ")")
+      plot(  logCounts$time, logCounts[,dataCol],
+             ylab ="Pathway" ,
+             xlab="Timepoint (months)",
+             main=title.lab,
+             cex.main = 1 ,
+             col = ifelse( logCounts$Surgery == "SG", "red", "blue" )
+      )
+      legend("topright", legend=c("SG", "RYGB"),
+             col=c("red", "blue"), pch = 21, cex=0.8)
+      
+    }
+    
+  }
+  dev.off()
+  
   
   
   qFrame <- data.frame( qpathName, groupNumbers,divPValues, direction)

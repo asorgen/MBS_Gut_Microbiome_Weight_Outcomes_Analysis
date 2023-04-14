@@ -15,7 +15,7 @@ params <- c(params, "MetaPhlAn2")
 # params <- c(params, 12)
 # params <- c(params, 18)
 # params <- c(params, 24)
-# end <- params[length(params)]
+# endM <- params[length(params)]
 
 levels <- vector()
 levels <- c(levels, "phylum")
@@ -82,7 +82,7 @@ if (args[1] == "BLJ") {
     module <- paste0(args[2], module)
   } 
   
-  if (exists("end") == TRUE) {
+  if (exists("endM") == TRUE) {
     module <- paste0(module, "_BLto", end)
   }
   
@@ -161,7 +161,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
   
   file.path <- paste0(inputDir,level, logCountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, row.names = 1, check.names = FALSE)
+  logCounts<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
   
   startAbundanceIndex <- which(colnames(logCounts)=="ResponderStatus")+1
   
@@ -275,7 +275,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
   
   file.path <- paste0(inputDir,level, logCountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, row.names = 1, check.names = FALSE)
+  logCounts<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
   
   plotList <- list()
   dFrame <- data.frame()

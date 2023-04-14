@@ -503,6 +503,16 @@ for (i in weightMetrics) {
     
     df$Timepoint <- as.factor(df$Timepoint)
     df$Timepoint <- factor( df$Timepoint, levels = c("BL - 1M", "BL - 6M", "BL - 12M", "BL - 18M", "BL - 24M"))
+    
+    stats.test <- df %>%
+      tukey_hsd(Weight ~ Timepoint)
+    stats.test$pValue <- roundP(stats.test$p.adj)
+    
+    stats.test <- stats.test %>%
+      add_xy_position(x = "Timepoint")
+    stats.test2 <- stats.test[stats.test$group1 == "BL - 1M",]
+    
+    
     plot <- ggboxplot(
       df, x = "Timepoint", y = "Weight",
       scales = "free", add = "jitter"
@@ -510,6 +520,52 @@ for (i in weightMetrics) {
     
     plot <- plot +
       labs(y = label); plot
+    
+    plotA <- plot +
+      stat_pvalue_manual(
+        stats.test2,
+        bracket.nudge.y = 0.05,
+        size = 5,
+        hide.ns = TRUE,
+        label = "p.adj.signif"
+      ); plotA
+    plotList[[index]] <- plotA
+    index <- index + 1
+    
+    plotB <- plot +
+      stat_pvalue_manual(
+        stats.test,
+        bracket.nudge.y = 0.05,
+        size = 5,
+        hide.ns = TRUE,
+        label = "p.adj.signif"
+      ); plotB
+    plotList[[index]] <- plotB
+    index <- index + 1
+    
+    plotC <- plot +
+      stat_pvalue_manual(
+        stats.test,
+        bracket.nudge.y = 0.09,
+        step.increase = 0.05,
+        size = 5,
+        hide.ns = TRUE,
+        label = "pValue"
+      ); plotC
+    plotList[[index]] <- plotC
+    index <- index + 1
+    
+    plotD <- plot +
+      stat_pvalue_manual(
+        stats.test2,
+        bracket.nudge.y = 0.05,
+        step.increase = 0.05,
+        size = 5,
+        hide.ns = TRUE,
+        label = "pValue"
+      ); plotD
+    plotList[[index]] <- plotD
+    index <- index + 1
     
   } else {
     
@@ -522,6 +578,15 @@ for (i in weightMetrics) {
     
     df$Timepoint <- as.factor(df$Timepoint)
     df$Timepoint <- factor( df$Timepoint, levels = c("Baseline", "1 month", "6 months", "12 months", "18 months", "24 months"))
+    
+    stats.test <- df %>%
+      tukey_hsd(Weight ~ Timepoint)
+    stats.test$pValue <- roundP(stats.test$p.adj)
+    
+    stats.test <- stats.test %>%
+      add_xy_position(x = "Timepoint")
+    stats.test2 <- stats.test[stats.test$group1 == "Baseline",]
+    
     plot <- ggboxplot(
       df, x = "Timepoint", y = "Weight",
       scales = "free", add = "jitter"
@@ -530,10 +595,56 @@ for (i in weightMetrics) {
     plot <- plot +
       labs(y = label); plot
     
+    plotA <- plot +
+      stat_pvalue_manual(
+        stats.test2,
+        bracket.nudge.y = 0.05,
+        size = 5,
+        hide.ns = TRUE,
+        label = "p.adj.signif"
+      ); plotA
+    plotList[[index]] <- plotA
+    index <- index + 1
+    
+    plotB <- plot +
+      stat_pvalue_manual(
+        stats.test,
+        bracket.nudge.y = 0.05,
+        size = 5,
+        hide.ns = TRUE,
+        label = "p.adj.signif"
+      ); plotB
+    plotList[[index]] <- plotB
+    index <- index + 1
+    
+    plotC <- plot +
+      stat_pvalue_manual(
+        stats.test,
+        bracket.nudge.y = 0.09,
+        step.increase = 0.05,
+        size = 5,
+        hide.ns = TRUE,
+        label = "pValue"
+      ); plotC
+    plotList[[index]] <- plotC
+    index <- index + 1
+    
+    plotD <- plot +
+      stat_pvalue_manual(
+        stats.test2,
+        bracket.nudge.y = 0.05,
+        step.increase = 0.05,
+        size = 5,
+        hide.ns = TRUE,
+        label = "pValue"
+      ); plotD
+    plotList[[index]] <- plotD
+    index <- index + 1
+    
   }
   
-  plotList[[index]] <- plot
-  index <- index + 1
+  # plotList[[index]] <- plot
+  # index <- index + 1
   
 }
 

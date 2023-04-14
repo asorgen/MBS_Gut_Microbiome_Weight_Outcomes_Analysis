@@ -75,11 +75,11 @@ if (args[1] == "BLJ") {
   module <- moduleRoot
   
   if (args[2] == "MetaPhlAn2" | args[2] == "Kraken2") {
-    module <- paste0(args[2], module)
+    module <- paste0(args[2], "_", module)
   } 
   
-  if (exists("end") == TRUE) {
-    module <- paste0(module, "_BLto", end, "M")
+  if (exists("endM") == TRUE) {
+    module <- paste0(module, "_BLto", endM, "M")
   }
   
   if (any(dir(root) %like% module) == TRUE) {
@@ -105,7 +105,7 @@ if (args[1] == "BLJ") {
   }
   
   files <- list.files(outputDir, recursive = TRUE, full.names = TRUE)
-  file.remove(files)
+  # file.remove(files)
   
   resourcesDir <- paste0(moduleDir, "resources/")
   if (any(dir(moduleDir) == "resources") == FALSE) {
@@ -391,10 +391,10 @@ for (taxaLevel in taxaLevels) {
   
   col2=adjustcolor(surgeryPalette[factor(myT$Surgery)], alpha.f = 1)
   
-  adon.results<-adonis(taxaTable[,1:end] ~ taxaTable$Surgery, method="bray",perm=999)
+  adon.results<-adonis2(taxaTable[,1:end] ~ taxaTable$Surgery, method="bray",perm=999)
   # print(adon.results)
   # capture.output(adon.results, file = paste0(outputDir, level, "_",studyName,"_adonis_Surgery.txt"))
-  Title <- paste0(str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$aov.tab$`Pr(>F)`[1])
+  Title <- paste0(str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$`Pr(>F)`[1])
   
   file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_Surgery_PCoA.pdf")
   pdf(file.path)
@@ -447,10 +447,10 @@ for (taxaLevel in taxaLevels) {
   
   col2=adjustcolor(colorPalette[factor(myT$Site)], alpha.f = 1)
   
-  adon.results<-adonis(taxaTable[,1:end] ~ taxaTable$Site, method="bray",perm=999)
+  adon.results<-adonis2(taxaTable[,1:end] ~ taxaTable$Site, method="bray",perm=999)
   # print(adon.results)
   # capture.output(adon.results, file = paste0(outputDir, level, "_",studyName,"_adonis_Site.txt"))
-  Title <- paste0(str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$aov.tab$`Pr(>F)`[1])
+  Title <- paste0(str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$`Pr(>F)`[1])
   
   file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_Site_PCoA.pdf")
   pdf(file.path)
@@ -480,7 +480,7 @@ for (taxaLevel in taxaLevels) {
   
 } # for (taxaLevel in taxaLevels)
 
-##### Bray-Curtis ~ QuintileAssignment_12M PCoA #####
+##### Bray-Curtis ~ TertileAssignment_12M PCoA #####
 for (taxaLevel in taxaLevels) {
   
   outputDirLevel <- paste0(outputDir, taxaLevel, "/")
@@ -492,25 +492,25 @@ for (taxaLevel in taxaLevels) {
   taxaStart <- which(colnames(myT) == "ResponderStatus") + 1
   
   taxaTable <- myT[,taxaStart:ncol(myT)]
-  taxaTable$QuintileAssignment_12M <- myT$QuintileAssignment_12M
-  taxaTable$QuintileAssignment_12M <- as.factor(taxaTable$QuintileAssignment_12M)
+  taxaTable$TertileAssignment_12M <- myT$TertileAssignment_12M
+  taxaTable$TertileAssignment_12M <- as.factor(taxaTable$TertileAssignment_12M)
   
   # taxaTable$Timepoint <- myT$time
   taxaTable <- na.omit(taxaTable)
-  end <- which(colnames(taxaTable) == "QuintileAssignment_12M") -1
+  end <- which(colnames(taxaTable) == "TertileAssignment_12M") -1
   
   myMDS <- capscale(taxaTable[,1:end] ~ 1, distance="bray")
   percentVariance <- round(eigenvals(myMDS)/sum(eigenvals(myMDS))*100,2)
   pcoa_p=paste("PCoA",c(1:5)," (",percentVariance,"%)",sep="")
   
-  col2=adjustcolor(colorPalette[factor(taxaTable$QuintileAssignment_12M)], alpha.f = 1)
+  col2=adjustcolor(colorPalette[factor(taxaTable$TertileAssignment_12M)], alpha.f = 1)
   
-  adon.results<-adonis(taxaTable[,1:end] ~ taxaTable$QuintileAssignment_12M, method="bray",perm=999)
+  adon.results<-adonis2(taxaTable[,1:end] ~ taxaTable$TertileAssignment_12M, method="bray",perm=999)
   # print(adon.results)
-  # capture.output(adon.results, file = paste0(outputDir, level, "_",studyName,"_adonis_QuintileAssignment_12M.txt"))
-  Title <- paste0("Patient Quintiles 12 months post-op\n", str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$aov.tab$`Pr(>F)`[1])
+  capture.output(adon.results, file = paste0(outputDirLevel, taxaLevel, "_", classifier, "_PERMANOVA_TertileAssignment_12M.txt"))
+  Title <- paste0("Patient Tertiles 12 months post-op\n", str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$`Pr(>F)`[1])
   
-  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_QuintileAssignment_12M_PCoA.pdf")
+  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_TertileAssignment_12M_PCoA.pdf")
   pdf(file.path)
   par(mar=c(5, 5, 5, 5), xpd=FALSE, mfrow = c(1,1))
   
@@ -521,15 +521,15 @@ for (taxaLevel in taxaLevels) {
     
     pcoa12 <- ordiplot(myMDS, choices = c(PCoA_a,PCoA_b), display = "sites", type = "none", cex.lab = 2, 
                        xlab = pcoa_p[PCoA_a], ylab = pcoa_p[PCoA_b], main = Title)
-    points(pcoa12, "sites", col = taxaTable$QuintileAssignment_12M, pch = 16, cex = 1.5)
+    points(pcoa12, "sites", col = taxaTable$TertileAssignment_12M, pch = 16, cex = 1.5)
     # points(pcoa12, "sites", col = adjustcolor(col2, alpha.f = 0.5), pch = 16, cex = 1.5)
-    # for (n in 1:length(unique(na.omit(taxaTable$QuintileAssignment_12M)))) {
-    #   ordiellipse(pcoa12, taxaTable$QuintileAssignment_12M, kind = "se", conf = 0.95, lwd = 4, draw = "lines",
-    #               col = colorPalette[n], show.groups = levels(factor(taxaTable$QuintileAssignment_12M))[n], label = T, 
+    # for (n in 1:length(unique(na.omit(taxaTable$TertileAssignment_12M)))) {
+    #   ordiellipse(pcoa12, taxaTable$TertileAssignment_12M, kind = "se", conf = 0.95, lwd = 4, draw = "lines",
+    #               col = colorPalette[n], show.groups = levels(factor(taxaTable$TertileAssignment_12M))[n], label = T, 
     #               font = 2, cex = 1)
     # }
-    legend("topright", legend = levels(taxaTable$QuintileAssignment_12M),
-           col = 1:length(levels(taxaTable$QuintileAssignment_12M)), 
+    legend("topright", legend = levels(taxaTable$TertileAssignment_12M),
+           col = 1:length(levels(taxaTable$TertileAssignment_12M)), 
            cex = 1.5, pch = 16, bty = "n")
     
   }
@@ -540,7 +540,7 @@ for (taxaLevel in taxaLevels) {
   
 } # for (taxaLevel in taxaLevels)
 
-##### Bray-Curtis ~ QuintileAssignment_24M PCoA #####
+##### Bray-Curtis ~ TertileAssignment_24M PCoA #####
 for (taxaLevel in taxaLevels) {
   
   outputDirLevel <- paste0(outputDir, taxaLevel, "/")
@@ -552,25 +552,25 @@ for (taxaLevel in taxaLevels) {
   taxaStart <- which(colnames(myT) == "ResponderStatus") + 1
   
   taxaTable <- myT[,taxaStart:ncol(myT)]
-  taxaTable$QuintileAssignment_24M <- myT$QuintileAssignment_24M
-  taxaTable$QuintileAssignment_24M <- as.factor(taxaTable$QuintileAssignment_24M)
+  taxaTable$TertileAssignment_24M <- myT$TertileAssignment_24M
+  taxaTable$TertileAssignment_24M <- as.factor(taxaTable$TertileAssignment_24M)
   
   # taxaTable$Timepoint <- myT$time
   taxaTable <- na.omit(taxaTable)
-  end <- which(colnames(taxaTable) == "QuintileAssignment_24M") -1
+  end <- which(colnames(taxaTable) == "TertileAssignment_24M") -1
   
   myMDS <- capscale(taxaTable[,1:end] ~ 1, distance="bray")
   percentVariance <- round(eigenvals(myMDS)/sum(eigenvals(myMDS))*100,2)
   pcoa_p=paste("PCoA",c(1:5)," (",percentVariance,"%)",sep="")
   
-  col2=adjustcolor(colorPalette[factor(taxaTable$QuintileAssignment_24M)], alpha.f = 1)
+  col2=adjustcolor(colorPalette[factor(taxaTable$TertileAssignment_24M)], alpha.f = 1)
   
-  adon.results<-adonis(taxaTable[,1:end] ~ taxaTable$QuintileAssignment_24M, method="bray",perm=999)
+  adon.results<-adonis2(taxaTable[,1:end] ~ taxaTable$TertileAssignment_24M, method="bray",perm=999)
   # print(adon.results)
-  # capture.output(adon.results, file = paste0(outputDir, level, "_",studyName,"_adonis_QuintileAssignment_24M.txt"))
-  Title <- paste0("Patient Quintiles 24 months post-op\n", str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$aov.tab$`Pr(>F)`[1])
+  capture.output(adon.results, file = paste0(outputDirLevel, taxaLevel, "_", classifier, "_PERMANOVA_TertileAssignment_24M.txt"))
+  Title <- paste0("Patient Tertiles 24 months post-op\n", str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$`Pr(>F)`[1])
   
-  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_QuintileAssignment_24M_PCoA.pdf")
+  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_TertileAssignment_24M_PCoA.pdf")
   pdf(file.path)
   par(mar=c(5, 5, 5, 5), xpd=FALSE, mfrow = c(1,1))
   
@@ -581,15 +581,15 @@ for (taxaLevel in taxaLevels) {
     
     pcoaPlot <- ordiplot(myMDS, choices = c(PCoA_a,PCoA_b), display = "sites", type = "none", cex.lab = 2, 
                        xlab = pcoa_p[PCoA_a], ylab = pcoa_p[PCoA_b], main = Title)
-    points(pcoaPlot, "sites", col = taxaTable$QuintileAssignment_24M, pch = 16, cex = 1.5)
+    points(pcoaPlot, "sites", col = taxaTable$TertileAssignment_24M, pch = 16, cex = 1.5)
     # points(pcoaPlot, "sites", col = adjustcolor(col2, alpha.f = 0.5), pch = 16, cex = 1.5)
-    # for (n in 1:length(unique(na.omit(taxaTable$QuintileAssignment_24M)))) {
-    #   ordiellipse(pcoaPlot, taxaTable$QuintileAssignment_24M, kind = "se", conf = 0.95, lwd = 4, draw = "lines",
-    #               col = colorPalette[n], show.groups = levels(factor(taxaTable$QuintileAssignment_24M))[n], label = T, 
+    # for (n in 1:length(unique(na.omit(taxaTable$TertileAssignment_24M)))) {
+    #   ordiellipse(pcoaPlot, taxaTable$TertileAssignment_24M, kind = "se", conf = 0.95, lwd = 4, draw = "lines",
+    #               col = colorPalette[n], show.groups = levels(factor(taxaTable$TertileAssignment_24M))[n], label = T, 
     #               font = 2, cex = 1)
     # }
-    legend("topright", legend = levels(taxaTable$QuintileAssignment_24M),
-           col = 1:length(levels(taxaTable$QuintileAssignment_24M)), 
+    legend("topright", legend = levels(taxaTable$TertileAssignment_24M),
+           col = 1:length(levels(taxaTable$TertileAssignment_24M)), 
            cex = 1.5, pch = 16, bty = "n")
     
   }
@@ -620,6 +620,11 @@ for (taxaLevel in taxaLevels) {
   file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_Surgery_by_Timepoint_PCoA.pdf")
   pdf(file.path)
   
+  Month <- vector()
+  p <- vector()
+  R2 <- vector()
+  Fval <- vector()
+  
   for (TP in levels(taxaTable$Timepoint)) {
     
     taxaTable2 <- taxaTable[taxaTable$Timepoint == TP,]
@@ -630,10 +635,10 @@ for (taxaLevel in taxaLevels) {
     
     col2=adjustcolor(surgeryPalette[factor(taxaTable2$Surgery)], alpha.f = 1)
     
-    adon.results<-adonis(taxaTable2[,1:end] ~ taxaTable2$Surgery, method="bray",perm=999)
+    adon.results<-adonis2(taxaTable2[,1:end] ~ taxaTable2$Surgery, method="bray",perm=999)
     # print(adon.results)
     # capture.output(adon.results, file = paste0(outputDir, level, "_",studyName,"_adonis_Surgery.txt"))
-    Title <- paste0(str_to_title(taxaLevel), " Bray-Curtis dissimilarity\nMonth ", TP, " - PERMANOVA p = ", adon.results$aov.tab$`Pr(>F)`[1])
+    Title <- paste0(str_to_title(taxaLevel), " Bray-Curtis dissimilarity\nMonth ", TP, " - PERMANOVA p = ", adon.results$`Pr(>F)`[1])
     
     par(mar=c(5, 5, 5, 5), xpd=FALSE, mfrow = c(1,1))
     
@@ -655,10 +660,190 @@ for (taxaLevel in taxaLevels) {
       
     }
     
+    Month <- c(Month, TP)
+    p <- c(p, adon.results$`Pr(>F)`[1])
+    R2 <- c(R2, adon.results$R2[1])
+    Fval <- c(Fval, adon.results$F[1])
+    
   } # for (TP in levels(taxaTable$Timepoint))
   
   dev.off()
   
+  dFrame <- data.frame(Month, p, R2, Fval)
+  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_Surgery_by_Timepoint_PERMANOVAResults.tsv")
+  write.table(dFrame, file.path, sep="\t",quote = FALSE, row.names = FALSE)
+  
   
 } # for (taxaLevel in taxaLevels)
+
+
+##### Bray-Curtis ~ TertileAssignment_24M & Timepoint PCoA #####
+for (taxaLevel in taxaLevels) {
+  
+  outputDirLevel <- paste0(outputDir, taxaLevel, "/")
+  
+  file.path <- paste0(inputDir, taxaLevel,"_LogNormalizedCounts_", classifier, ".tsv")
+  myT <- read.table(file.path, sep='\t', header = TRUE)
+  # rownames(myT) <- myT$SampleID
+  
+  taxaStart <- which(colnames(myT) == "ResponderStatus") + 1
+  
+  taxaTable <- myT[,taxaStart:ncol(myT)]
+  taxaTable$TertileAssignment_24M <- myT$TertileAssignment_24M
+  taxaTable$TertileAssignment_24M <- gsub("1", "Tertile 1", taxaTable$TertileAssignment_24M)
+  taxaTable$TertileAssignment_24M <- gsub("2", "Tertile 2", taxaTable$TertileAssignment_24M)
+  taxaTable$TertileAssignment_24M <- gsub("3", "Tertile 3", taxaTable$TertileAssignment_24M)
+  taxaTable$TertileAssignment_24M <- as.factor(taxaTable$TertileAssignment_24M)
+  taxaTable$Timepoint <- myT$time
+  taxaTable$Timepoint <- as.factor(taxaTable$Timepoint)
+  
+  taxaTable <- na.omit(taxaTable)
+  end <- which(colnames(taxaTable) == "TertileAssignment_24M") -1
+  
+  Month <- vector()
+  p <- vector()
+  R2 <- vector()
+  Fval <- vector()
+  
+  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_TertileAssignment_24M_by_Timepoint_PCoA.pdf")
+  pdf(file.path,width = 10, height = 5)
+  par(mar=c(5, 5, 5, 5), xpd=FALSE, mfrow = c(2,3))
+  
+  for (month in unique(taxaTable$Timepoint)) {
+    
+    taxaTable2 <- taxaTable[taxaTable$Timepoint == month,]
+    myMDS <- capscale(taxaTable2[,1:end] ~ 1, distance="bray")
+    percentVariance <- round(eigenvals(myMDS)/sum(eigenvals(myMDS))*100,2)
+    pcoa_p=paste("PCoA",c(1:5)," (",percentVariance,"%)",sep="")
+    
+    
+    adon.results<-adonis2(taxaTable2[,1:end] ~ taxaTable2$TertileAssignment_24M, method="bray",perm=999)
+    print(adon.results)
+    # capture.output(adon.results, file = paste0(outputDirLevel, taxaLevel, "_", classifier, "_PERMANOVA_TertileAssignment_24M.txt"))
+    
+    Month <- c(Month, month)
+    p <- c(p, adon.results$`Pr(>F)`[1])
+    R2 <- c(R2, adon.results$R2[1])
+    Fval <- c(Fval, adon.results$F[1])
+    
+    Title <- paste0("Weight Loss Tertiles (24-mo)\n", str_to_title(taxaLevel), " PERMANOVA p = ", adon.results$`Pr(>F)`[1])
+    Subtitle <- month.labs[which(unique(taxaTable$Timepoint) == month)]
+    
+    
+    all.combindations <- combn(1:2, 2)
+    for (combination in 1:ncol(all.combindations)) {
+      PCoA_a <- all.combindations[1,combination]
+      PCoA_b <- all.combindations[2,combination]
+      
+      pcoaPlot <- ordiplot(myMDS, choices = c(PCoA_a,PCoA_b), display = "sites", type = "none", cex.lab = 2,
+                           xlab = pcoa_p[PCoA_a], ylab = pcoa_p[PCoA_b], main = paste0(Title, "\n", Subtitle))
+      colorPalette <- c("purple", "orange", "yellowgreen", "grey", "steelblue", "tomato", "pink")
+      col2=adjustcolor(colorPalette[factor(taxaTable2$TertileAssignment_24M)], alpha.f = 1)
+      # points(pcoaPlot, "sites", col = taxaTable2$TertileAssignment_24M, pch = 16, cex = 1.5)
+      points(pcoaPlot, "sites", col = adjustcolor(col2, alpha.f = 0.5), pch = 16, cex = 1.5)
+      for (n in 1:length(levels(taxaTable2$TertileAssignment_24M))) {
+        ordiellipse(pcoaPlot, taxaTable2$TertileAssignment_24M, kind = "se", conf = 0.95, lwd = 2, draw = "lines",
+                    col = col2[n], show.groups = levels(factor(taxaTable2$TertileAssignment_24M))[n], label = F,
+                    font = 2, cex = 1)
+      }
+      legend("topright", 
+             legend = levels(taxaTable2$TertileAssignment_24M),
+             col = col2[1:length(levels(taxaTable2$TertileAssignment_24M))],
+             cex = 0.75, pch = 16,
+             horiz = FALSE)
+      
+    }
+    
+    
+    
+  }
+  
+  dev.off()
+  
+  dFrame <- data.frame(Month, p, R2, Fval)
+  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_BrayCurtis_by_TertileAssignment_24M_by_Timepoint_PERMANOVAResults.tsv")
+  write.table(dFrame, file.path, sep="\t",quote = FALSE, row.names = FALSE)
+  
+  
+} # for (taxaLevel in taxaLevels)
+
+
+
+##### Shannon Diversity ~ Tertile Box Plots -- ANOVA (grouped by time) #####
+for (taxaLevel in taxaLevels) {
+  
+  outputDirLevel <- paste0(outputDir, taxaLevel, "/")
+  
+  file.path <- paste0(outputDirLevel, taxaLevel,"_LogNormalizedCounts_", classifier, "_alpha.tsv")
+  myT <- read.table(file.path, sep='\t', header = TRUE)
+  rownames(myT) <- myT$SampleID
+  
+  PatientID <- myT$PatientID
+  Tertile <- myT$TertileAssignment_24M
+  Timepoint <- myT$time
+  ShannonIndex <- myT$ShannonIndex
+  myT2 <- data.frame(PatientID, Tertile, Timepoint, ShannonIndex)
+  myT2$Tertile <- as.factor(myT2$Tertile)
+  
+  myT2 <- na.omit(myT2)
+  
+  x.lab <- "Tertile"
+  y.lab <- "Shannon Index"
+  title.lab <- ""
+  subtitle.lab <- "ANOVA"
+  caption.lab <- "pairwise comparisons visa t-test"
+  
+  stat.test <- myT2 %>%
+    group_by(Timepoint) %>%
+    anova_test(ShannonIndex ~ Tertile) %>%
+    adjust_pvalue(method = "BH") %>%
+    add_significance()
+  
+  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_ShannonIndex_by_Tertile_Timepoint_LinearModel_Results.tsv")
+  write.table(stat.test, file.path, sep="\t",quote = FALSE, row.names = FALSE)
+  
+  stat.test <- myT2 %>%
+    group_by(Timepoint) %>%
+    tukey_hsd(ShannonIndex ~ Tertile)
+  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_ShannonIndex_by_Tertile_Timepoint_Tukey_Results.tsv")
+  write.table(stat.test, file.path, sep="\t",quote = FALSE, row.names = FALSE)
+  
+  
+  stat.test <- stat.test %>%
+    add_xy_position(x = "Tertile", fun = "max")
+  
+  
+  plot <- ggboxplot(
+    myT2, x = "Tertile", y = "ShannonIndex", color = "black",
+    fill = "Tertile", palette = c("blue", "pink", "red"),
+    # facet.by = "month",
+    scales = "free", add = "jitter"
+  ); plot
+  
+  plot <- facet(plot, facet.by = "Timepoint"
+                , panel.labs = list(Timepoint = month.labs)
+  ); plot
+  
+  plot <- plot + labs(x=x.lab, y = y.lab); plot
+  # plot <- plot + labs(title = title.lab); plot
+  # plot <- plot + labs(subtitle = subtitle.lab); plot
+  # plot <- plot + labs(caption = caption.lab); plot
+  
+  plot <- plot +
+    stat_pvalue_manual(
+      stat.test,
+      bracket.nudge.y = 0.05,
+      size = 7,
+      hide.ns = TRUE,
+      label = "p.adj.signif"
+    ); plot
+  
+  file.path <- paste0(outputDirLevel, taxaLevel, "_", classifier, "_ShannonIndex_by_Tertile_Timepoint_BoxPlot.pdf")
+  pdf(file.path, width = 10, height = 7)
+  print(plot)
+  dev.off()
+  
+} # for (taxaLevel in taxaLevels)
+
+
 

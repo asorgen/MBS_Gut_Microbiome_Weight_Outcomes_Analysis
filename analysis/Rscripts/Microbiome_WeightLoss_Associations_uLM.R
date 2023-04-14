@@ -166,7 +166,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
   
   file.path <- paste0(inputDir,level, CountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, row.names = 1, check.names = FALSE)
+  logCounts<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
   
   startAbundanceIndex <- which(colnames(logCounts)=="ResponderStatus")+1
   
@@ -317,7 +317,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
   
   file.path <- paste0(inputDir,level, CountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, row.names = 1, check.names = FALSE)
+  logCounts<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
   
   file.path <- paste0(outputLevel, level, "_taxa_by_weight_loss_uLM_results_BLto", included[length(included)], "M.tsv")
   stats.df<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
