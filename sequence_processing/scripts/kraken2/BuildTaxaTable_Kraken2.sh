@@ -5,11 +5,11 @@
 # Date = 2021 Oct 11
 
 ################## Edit ##############################
-Dir=/nobackup/afodor_research/asorgen/BariatricSurgery
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
 inputDir=${Dir}/03_kraken2
 outputDir=${Dir}/06_kraken2TaxaTables
-scriptPath=${Dir}/scripts/kraken2
-funcScript=${Dir}/scripts/functions.R
+scriptPath=${ScriptDir}/kraken2
+funcScript=${ScriptDir}/functions.R
 logDir=${Dir}/outputLogs
 ######################################################
 

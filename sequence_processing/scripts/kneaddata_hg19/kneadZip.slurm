@@ -13,7 +13,8 @@
 
 SECONDS=0
 
-logDir=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
+logDir=${Dir}/outputLogs
 jobName=$SLURM_JOB_NAME
 outFile=$SLURM_JOB_NAME.$SLURM_JOB_ID
 
@@ -31,7 +32,7 @@ echo Using $SLURM_NTASKS processors across $SLURM_NNODES nodes
 ### Load modules
 
 # zip -r /nobackup/afodor_research/asorgen/BariatricSurgery/01_kneaddata_hg19.zip /nobackup/afodor_research/asorgen/BariatricSurgery/01_kneaddata_hg19/
-unzip /nobackup/afodor_research/asorgen/BariatricSurgery/01_kneaddata_hg19.zip -d /nobackup/afodor_research/asorgen/BariatricSurgery_GMHI/BS_data -x "*/*_unmatched_*" "*/*_contam_*" "*/*.log"
+unzip ${Dir}/01_kneaddata_hg19.zip -d ${Dir}_GMHI/BS_data -x "*/*_unmatched_*" "*/*_contam_*" "*/*.log"
 
 duration=$SECONDS
 

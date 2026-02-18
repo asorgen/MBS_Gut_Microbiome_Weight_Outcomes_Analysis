@@ -8,7 +8,8 @@
 #SBATCH --output=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs/%x.%j.out 	# Standard output
 #SBATCH --error=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs/%x.%j.err 	# Error log
 
-logDir=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
+logDir=${Dir}/outputLogs
 jobName=$SLURM_JOB_NAME
 outFile=$SLURM_JOB_NAME.$SLURM_JOB_ID
 
@@ -34,12 +35,12 @@ SECONDS=0
 kneaddata \
 --input1 $R1 \
 --input2 $R2 \
---reference-db /nobackup/afodor_research/databases/kneaddata_database/Homo_sapiens \
+--reference-db ${kneaddataDB} \
 -t 4 \
 -p 2 \
 --remove-intermediate-output \
 --output $PEout \
---trimmomatic-options ILLUMINACLIP:/users/asorgen/Trimmomatic-0.39/adapters/TruSeq3-PE-2.fa:2:30:10:8:true \
+--trimmomatic-options ILLUMINACLIP:${trimmomaticAdapters}:2:30:10:8:true \
 --trimmomatic-options LEADING:3 \
 --trimmomatic-options TRAILING:3 \
 --trimmomatic-options SLIDINGWINDOW:4:15 \

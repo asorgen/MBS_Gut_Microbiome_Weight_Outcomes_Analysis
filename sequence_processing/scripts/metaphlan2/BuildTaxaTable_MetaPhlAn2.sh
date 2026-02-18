@@ -5,11 +5,11 @@
 # Date = 2021 Oct 11
 
 ################## Edit ##############################
-Dir=/nobackup/afodor_research/asorgen/BariatricSurgery
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
 inputDir=${Dir}/04_metaphlan2
 outputDir=${Dir}/07_metaphlan2TaxaTables
-scriptPath=${Dir}/scripts/metaphlan2
-funcScript=${Dir}/scripts/functions.R
+scriptPath=${ScriptDir}/metaphlan2
+funcScript=${ScriptDir}/functions.R
 logDir=${Dir}/outputLogs
 ######################################################
 

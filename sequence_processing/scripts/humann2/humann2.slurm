@@ -8,7 +8,8 @@
 #SBATCH --output=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs/%x.%j.out 	# Standard output
 #SBATCH --error=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs/%x.%j.err 	# Error log
 
-logDir=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
+logDir=${Dir}/outputLogs
 jobName=$SLURM_JOB_NAME
 outFile=$SLURM_JOB_NAME.$SLURM_JOB_ID
 
@@ -31,9 +32,9 @@ echo -e "\n${yellow}[Running HumanN2 for sample ${ID}]\n"
 
 humann2 \
 --input $INPUT \
---nucleotide-database /nobackup/afodor_research/databases/humanN2/chocophlan \
---protein-database /nobackup/afodor_research/databases/humanN2/uniref \
---metaphlan-options "--bowtie2db /scratch/asorgen/mpa_v20_m200" \
+--nucleotide-database ${humann2NuclDB} \
+--protein-database ${humann2ProtDB} \
+--metaphlan-options "--bowtie2db ${metaphlan2DB}" \
 --remove-temp-output \
 --threads 8 \
 --output $outputDir 

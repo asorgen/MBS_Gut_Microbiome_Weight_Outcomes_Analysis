@@ -11,7 +11,8 @@
 #SBATCH --output=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs/%x.%j.out 	# Standard output
 #SBATCH --error=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs/%x.%j.err 	# Error log
 
-logDir=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
+logDir=${Dir}/outputLogs
 jobName=$SLURM_JOB_NAME
 outFile=$SLURM_JOB_NAME.$SLURM_JOB_ID
 
@@ -27,8 +28,5 @@ echo Using $SLURM_NTASKS processors across $SLURM_NNODES nodes
 
 ### Load modules
 
-### Assign path variables
-Dir=/nobackup/afodor_research/asorgen/BariatricSurgery
-
 ### Working script
-${Dir}/scripts/copy/copy.sh
+${ScriptDir}/copy/copy.sh

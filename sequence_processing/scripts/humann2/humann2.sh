@@ -5,12 +5,10 @@
 # Date = 2021 Oct 11
 
 ################## Edit ##############################
-Dir=/nobackup/afodor_research/asorgen/BariatricSurgery
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
 inputDir=${Dir}/02_pearMerge
 outputDir=${Dir}/05_humann2
-# inputList=${Dir}/BariatricSurgery_FileList.txt
-inputList=${Dir}/BariatricSurgery_FileList_2022Nov18.txt
-scriptPath=${Dir}/scripts/humann2
+scriptPath=${ScriptDir}/humann2
 ######################################################
 
 # mkdir ${outputDir} # create new directory

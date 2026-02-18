@@ -5,10 +5,10 @@
 # Date = 2021 Oct 8
 
 ########### Edit directory paths ###########
-Dir=/nobackup/afodor_research/asorgen/BariatricSurgery
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
 inputDir=${Dir}/02_pearMerge
-inputList=${Dir}/BariatricSurgery_FileList.txt
-scriptPath=${Dir}/scripts/pearMerge
+inputList=${Dir}/BariatricSurgery_FileList.txt    # uses original file list, not 2022 update
+scriptPath=${ScriptDir}/pearMerge
 ############################################
 
 

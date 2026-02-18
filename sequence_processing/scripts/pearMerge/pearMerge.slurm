@@ -10,7 +10,8 @@
 
 SECONDS=0
 
-logDir=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
+logDir=${Dir}/outputLogs
 jobName=$SLURM_JOB_NAME
 outFile=$SLURM_JOB_NAME.$SLURM_JOB_ID
 
@@ -31,7 +32,7 @@ echo -e "\n${yellow}[Running PEAR merge for sample: ${ID}]\n"
 /bin/date
 
 
-/users/asorgen/PROGRAMS/pear \
+${pearPath} \
 -f $R1 \
 -r $R2 \
 -o $merge 

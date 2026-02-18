@@ -5,9 +5,9 @@
 # Date = 2021 Oct 12
 
 ################# EDIT ####################
-Dir=/nobackup/afodor_research/asorgen/BariatricSurgery
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
 outputDir=${Dir}/04_metaphlan2
-inputList=${Dir}/BariatricSurgery_FileList.txt
+inputList=${Dir}/BariatricSurgery_FileList.txt    # uses original file list, not 2022 update
 ###########################################
 
 # mkdir ${outputDir}/bowtie2Output

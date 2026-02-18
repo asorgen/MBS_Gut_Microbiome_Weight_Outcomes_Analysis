@@ -4,17 +4,14 @@
 # Author = Alicia Sorgen
 # Date = 2021 Oct 7
 
-Dir=/nobackup/afodor_research/asorgen/BariatricSurgery/
-inputDir=/scratch/asorgen/metagenome/BariatricSurgery/rawSeqs
-scriptPath=${Dir}/scripts/kneaddata_hg19
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
+inputDir=${rawSeqDir}
+scriptPath=${ScriptDir}/kneaddata_hg19
 
 # rm -r ${Dir}/kneaddata_hg19 # remove old directory
 mkdir ${Dir}/01_kneaddata_hg19 # create new directory
 
 outputDir=${Dir}/01_kneaddata_hg19
-# inputList=${Dir}/BariatricSurgery_FileList.txt
-# inputList=${Dir}/BariatricSurgery_FileList_2021Dec08.txt
-inputList=${Dir}/BariatricSurgery_FileList_2022Nov18.txt
 
 for ID in $(cat $inputList); do
     

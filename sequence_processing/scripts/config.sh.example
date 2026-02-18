@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Template for personal configuration — copy to config.sh and fill in your paths.
+# config.sh is gitignored and will not be committed to the repository.
+
+# -----------------------------------------------------------------------------
+# Base directories
+# -----------------------------------------------------------------------------
+Dir=/path/to/your/working/directory           # Base directory for pipeline data
+rawSeqDir=/path/to/raw/sequences              # Raw FASTQ files
+ScriptDir=/path/to/repo/sequence_processing/scripts  # This scripts directory
+
+# -----------------------------------------------------------------------------
+# Sample file list
+# -----------------------------------------------------------------------------
+inputList=${Dir}/your_file_list.txt
+
+# -----------------------------------------------------------------------------
+# Databases
+# -----------------------------------------------------------------------------
+kneaddataDB=/path/to/kneaddata/Homo_sapiens   # Human reference genome (hg19)
+kraken2DB=/path/to/kraken2_standardDB
+metaphlan2DB=/path/to/mpa_v20_m200
+humann2NuclDB=/path/to/humanN2/chocophlan
+humann2ProtDB=/path/to/humanN2/uniref
+
+# -----------------------------------------------------------------------------
+# Tool paths
+# -----------------------------------------------------------------------------
+kraken2Path=/path/to/kraken2
+pearPath=/path/to/pear
+trimmomaticAdapters=/path/to/Trimmomatic/adapters/TruSeq3-PE-2.fa
+
+# -----------------------------------------------------------------------------
+# SLURM settings
+# -----------------------------------------------------------------------------
+email=your@email.edu

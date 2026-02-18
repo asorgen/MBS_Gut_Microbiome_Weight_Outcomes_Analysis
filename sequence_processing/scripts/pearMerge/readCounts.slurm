@@ -11,7 +11,8 @@
 ##SBATCH --mail-type=BEGIN,END,FAIL									    # Mail events (NONE, BEGIN, END, FAIL, ALL)
 ##SBATCH --mail-user=asorgen@uncc.edu								    # Specified email address
 
-logDir=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs
+source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
+logDir=${Dir}/outputLogs
 jobName=$SLURM_JOB_NAME
 outFile=$SLURM_JOB_NAME.$SLURM_JOB_ID
 
@@ -33,7 +34,7 @@ echo Using $SLURM_NTASKS processors across $SLURM_NNODES nodes
 
 SECONDS=0
 
-/nobackup/afodor_research/asorgen/BariatricSurgery/scripts/pearMerge/readCounts.sh
+${ScriptDir}/pearMerge/readCounts.sh
 
 
 duration=$SECONDS
