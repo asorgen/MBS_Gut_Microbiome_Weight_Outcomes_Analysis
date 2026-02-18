@@ -72,3 +72,27 @@ Results_Presentations/
 
 # Mac icon file
 Icon\r
+
+# ==============================================================================
+# Sequence processing - pipeline output data (keep scripts only)
+# ==============================================================================
+
+# Compressed raw data archives at top level
+sequence_processing/*.zip
+
+# Pipeline output data directories
+sequence_processing/03_kraken2/
+sequence_processing/04_metaphlan2/
+sequence_processing/05_humann2/
+sequence_processing/06_kraken2TaxaTables/
+sequence_processing/07_metaphlan2TaxaTables/
+sequence_processing/08_humann2JoinTables/
+sequence_processing/outputLogs/
+sequence_processing/seqCounts.tsv
+sequence_processing/BariatricSurgery_metadata.txt
+sequence_processing/BariatricSurgery_FileList*.txt
+
+# Compressed alignment files and SLURM output/error logs
+sequence_processing/**/*.bz2
+sequence_processing/**/*.out
+sequence_processing/**/*.err
