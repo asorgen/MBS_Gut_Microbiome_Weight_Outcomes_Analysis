@@ -24,8 +24,7 @@ This repository contains the full analysis pipeline examining whether early post
 │   │   ├── metadataTables/   # Patient weight and clinical metadata (not included)
 │   │   ├── MetaPhlAn2TaxaTables/  # Taxonomic abundance tables (not included)
 │   │   └── Kraken2TaxaTables/     # Taxonomic abundance tables (not included)
-│   ├── Rscripts/             # All analysis R scripts
-│   └── scripts/              # Shell scripts for bioinformatics processing
+│   └── Rscripts/             # All analysis R scripts
 ├── Final_Tables_Figures/     # Publication-ready outputs
 └── Results_Presentations/    # Interim results and presentations
 ```

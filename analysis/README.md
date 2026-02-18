@@ -13,8 +13,7 @@ analysis/
 │   ├── metadataTables/   # Patient weight and clinical metadata (not included)
 │   ├── MetaPhlAn2TaxaTables/  # Taxonomic abundance tables (not included)
 │   └── Kraken2TaxaTables/     # Taxonomic abundance tables (not included)
-├── Rscripts/             # All analysis R scripts
-└── scripts/              # Shell scripts for bioinformatics processing
+└── Rscripts/             # All analysis R scripts
 ```
 
 ---
