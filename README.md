@@ -16,6 +16,8 @@ This repository contains the full analysis pipeline examining whether early post
 
 ```
 .
+├── sequence_processing/      # Upstream sequence QC and profiling pipeline
+│   └── scripts/              # Shell, SLURM, and R scripts (see sequence_processing/README.md)
 ├── analysis/
 │   ├── BLJ_config_files/     # BioLockJ pipeline configuration files
 │   ├── input/
@@ -27,6 +29,23 @@ This repository contains the full analysis pipeline examining whether early post
 ├── Final_Tables_Figures/     # Publication-ready outputs
 └── Results_Presentations/    # Interim results and presentations
 ```
+
+---
+
+## Sequence Processing (`sequence_processing/`)
+
+Raw paired-end whole metagenome shotgun sequencing reads were processed through the following steps before downstream analysis. See [`sequence_processing/README.md`](sequence_processing/README.md) for full details, script locations, databases, and runtimes.
+
+| Step | Tool | Description |
+|---|---|---|
+| 1 | — | Copy raw FASTQ files to scratch |
+| 2 | KneadData | Quality trimming and human read removal (hg19) |
+| 3 | PEAR | Paired-end read merging |
+| 4 | Kraken2 | Taxonomic classification |
+| 5 | MetaPhlAn2 | Taxonomic classification and abundance profiling |
+| 6 | HUMAnN2 | Functional pathway and gene family profiling |
+| 7 | R | Build and normalize Kraken2 and MetaPhlAn2 taxa tables |
+| 8 | HUMAnN2 | Join and renormalize pathway tables |
 
 ---
 
@@ -76,7 +95,10 @@ Analysis pipelines are managed with [BioLockJ](https://github.com/BioLockJ-Dev-T
 - **R** (≥ 4.0)
 - Key R packages: `nlme`, `ggplot2`, `ggpubr`, `vegan`, `rstatix`, `randomForest`, `data.table`, `stringr`, `tidyr`, `gridExtra`
 - **BioLockJ** for pipeline execution
-- **MetaPhlAn2** and **Kraken2** for upstream taxonomic profiling
+- **KneadData** for quality trimming and host decontamination
+- **PEAR** for paired-end read merging
+- **Kraken2** and **MetaPhlAn2** for taxonomic profiling
+- **HUMAnN2** for functional pathway profiling
 
 ---
 
