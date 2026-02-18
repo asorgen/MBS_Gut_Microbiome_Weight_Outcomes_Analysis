@@ -56,6 +56,40 @@ sequence_processing/
 
 ---
 
+## Configuration
+
+All personal paths, database locations, tool paths, and SLURM settings are stored in a single configuration file that is **not tracked by git** to keep sensitive paths private.
+
+### Setup
+
+1. Copy the example config to create your own:
+   ```bash
+   cp scripts/config.sh.example scripts/config.sh
+   ```
+
+2. Edit `scripts/config.sh` and fill in your values:
+
+   | Variable | Description |
+   |---|---|
+   | `Dir` | Base working directory for all pipeline data |
+   | `rawSeqDir` | Location of raw input FASTQ files |
+   | `ScriptDir` | Path to this `scripts/` directory in your clone |
+   | `inputList` | Sample file list (one ID per line) |
+   | `kneaddataDB` | KneadData human reference database |
+   | `kraken2DB` | Kraken2 standard database |
+   | `metaphlan2DB` | MetaPhlAn2 bowtie2 database |
+   | `humann2NuclDB` | HUMAnN2 ChocoPhlAn nucleotide database |
+   | `humann2ProtDB` | HUMAnN2 UniRef protein database |
+   | `kraken2Path` | Path to Kraken2 executable |
+   | `pearPath` | Path to PEAR executable |
+   | `trimmomaticAdapters` | Path to Trimmomatic adapter FASTA |
+   | `email` | Email address for SLURM job notifications |
+   | `slurm_out` | Directory for SLURM output/error logs |
+
+All scripts source `config.sh` automatically at runtime — no other path changes are needed.
+
+---
+
 ## Steps
 
 ### 1. Copy Sequences to Scratch
