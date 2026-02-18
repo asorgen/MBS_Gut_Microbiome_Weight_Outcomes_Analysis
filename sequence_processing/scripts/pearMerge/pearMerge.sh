@@ -7,9 +7,7 @@
 ########### Edit directory paths ###########
 source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
 inputDir=${Dir}/01_kneaddata_hg19
-# inputDir=/scratch/asorgen/metagenome/BariatricSurgery/01_kneaddata_hg19
 outputDir=${Dir}/02_pearMerge
-#outputDir=/scratch/asorgen/metagenome/BariatricSurgery/02_pearMerge
 R1File=R1_001_kneaddata_paired_1.fastq
 R2File=R1_001_kneaddata_paired_2.fastq
 scriptPath=${ScriptDir}/pearMerge
@@ -18,7 +16,6 @@ scriptPath=${ScriptDir}/pearMerge
 
 # rm -r ${Dir}/pearMerge # remove old directory
 # mkdir ${outputDir} # create new directory
-# ID=BIO-2-031-12_ATCGTGGA-GGCCGTTG_S022_L002
 
 
 for ID in $(cat $inputList); do
@@ -33,6 +30,8 @@ for ID in $(cat $inputList); do
     # Submit job
     sbatch \
     --job-name=pear_${ID} \
+    --output=${slurm_out}/pearMerge/%x.%j.out \
+    --error=${slurm_out}/pearMerge/%x.%j.err \
     ${scriptPath}/pearMerge.slurm 
 
 done

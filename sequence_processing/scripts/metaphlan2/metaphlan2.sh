@@ -32,7 +32,9 @@ for ID in $(cat $inputList); do
     sbatch \
     --job-name=metaphlan_${ID} \
     --time=5:00:00 \
-    ${scriptPath}/metaphlan2.slurm 
+    --output=${slurm_out}/metaphlan2/%x.%j.out \
+    --error=${slurm_out}/metaphlan2/%x.%j.err \
+    ${scriptPath}/metaphlan2.slurm
 
 done
 

@@ -30,7 +30,9 @@ ID=BIO-2-010-01_CAACACCT-TGGTAGCT_S072_L006
     sbatch \
     --job-name=humann_${ID} \
     --time=10:00:00 \
-    ${scriptPath}/humann2.slurm 
+    --output=${slurm_out}/humann2/%x.%j.out \
+    --error=${slurm_out}/humann2/%x.%j.err \
+    ${scriptPath}/humann2.slurm
 
 # done
 

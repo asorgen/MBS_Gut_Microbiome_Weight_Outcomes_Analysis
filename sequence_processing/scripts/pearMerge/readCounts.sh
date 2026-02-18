@@ -7,7 +7,7 @@
 ########### Edit directory paths ###########
 source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
 inputDir=${Dir}/02_pearMerge
-inputList=${Dir}/BariatricSurgery_FileList.txt    # uses original file list, not 2022 update
+# inputList=${Dir}/BariatricSurgery_FileList.txt    # uses original file list, not 2022 update
 scriptPath=${ScriptDir}/pearMerge
 ############################################
 

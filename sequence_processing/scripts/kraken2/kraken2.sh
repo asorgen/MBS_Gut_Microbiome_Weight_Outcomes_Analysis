@@ -33,6 +33,8 @@ for ID in $(cat $inputList); do
     sbatch \
     --job-name=k2_${ID} \
     --time=10:00:00 \
-    ${scriptPath}/kraken2.slurm 
+    --output=${slurm_out}/kraken2/%x.%j.out \
+    --error=${slurm_out}/kraken2/%x.%j.err \
+    ${scriptPath}/kraken2.slurm
 
 done

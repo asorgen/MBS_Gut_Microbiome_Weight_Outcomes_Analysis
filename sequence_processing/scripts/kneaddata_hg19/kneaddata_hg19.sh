@@ -25,6 +25,8 @@ for ID in $(cat $inputList); do
     # Submit job
     sbatch \
     --job-name=hg19_${ID} \
-    ${scriptPath}/kneaddata_hg19.slurm 
+    --output=${slurm_out}/knead_hg19/%x.%j.out \
+    --error=${slurm_out}/knead_hg19/%x.%j.err \
+    ${scriptPath}/kneaddata_hg19.slurm
 
 done

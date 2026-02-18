@@ -22,5 +22,7 @@ export logDir
 # Submit job
 sbatch \
 --job-name=k2Tables \
-${scriptPath}/BuildTaxaTable_Kraken2.slurm 
+--output=${slurm_out}/kraken2/%x.%j.out \
+--error=${slurm_out}/kraken2/%x.%j.err \
+${scriptPath}/BuildTaxaTable_Kraken2.slurm
 

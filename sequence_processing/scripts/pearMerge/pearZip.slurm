@@ -6,10 +6,6 @@
 #SBATCH --nodes=1 																				# Number of nodes requested
 #SBATCH --ntasks-per-node=16 																	# Number of CPUs (processor cores/tasks)
 #SBATCH --mem=125gb																				# Memory limit
-#SBATCH --output=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs/%x.%j.out 		# Standard output
-#SBATCH --error=/nobackup/afodor_research/asorgen/BariatricSurgery/outputLogs/%x.%j.err 		# Error log
-#SBATCH --mail-type=BEGIN,END,FAIL 																# Mail events (NONE, BEGIN, END, FAIL, ALL)
-#SBATCH --mail-user=asorgen@uncc.edu 															# Specified email address
 
 SECONDS=0
 

@@ -23,5 +23,7 @@ export logDir
 sbatch \
 --job-name=m2test \
 --time=02:00:00 \
-${scriptPath}/BuildTaxaTable_MetaPhlAn2.slurm 
+--output=${slurm_out}/metaphlan2/%x.%j.out \
+--error=${slurm_out}/metaphlan2/%x.%j.err \
+${scriptPath}/BuildTaxaTable_MetaPhlAn2.slurm
 
