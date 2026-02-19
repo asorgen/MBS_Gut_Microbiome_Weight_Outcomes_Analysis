@@ -47,6 +47,9 @@ vignettes/*.pdf
 # Patient data & identifying information
 # ==============================================================================
 
+# Sample ID corrections (contains participant identifiers)
+analysis/input/sampleID_corrections.R
+
 # Metadata tables (patient weight, IDs, clinical variables)
 analysis/input/metadataTables/
 

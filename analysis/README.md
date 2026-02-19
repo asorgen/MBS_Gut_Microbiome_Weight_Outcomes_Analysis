@@ -55,4 +55,3 @@ Analysis pipelines are managed with [BioLockJ](https://github.com/BioLockJ-Dev-T
 | `Uniqueness.R` | Microbiome uniqueness analysis |
 | `functions.R` | Shared utility functions used across scripts |
 
-Scripts prefixed with `x_` are exploratory or developmental versions not used in the final published analysis.

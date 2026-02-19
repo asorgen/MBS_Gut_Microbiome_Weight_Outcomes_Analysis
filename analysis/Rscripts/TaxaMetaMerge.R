@@ -133,6 +133,9 @@ classifier <- args[2]
 
 inputDir = file.path(pipeRoot, "input")
 count.InputDir = file.path(inputDir, paste0(classifier, "TaxaTables/"))
+# sampleID_corrections.R defines sample ID corrections specific to this dataset.
+# This file is not included in the public repository; see .gitignore.
+source(file.path(inputDir, "sampleID_corrections.R"))
 rawFile <- "_rawCounts"
 logFile <- "_LogNormalizedCounts"
 relFile <- "_RelativeAbundanceCounts"
@@ -154,9 +157,9 @@ for (level in levels) {
     Table <- read.delim(paste0(count.InputDir, level, File, ".tsv"), sep="\t",header = TRUE, row.names = 1)
     
     SampleID <- sapply(strsplit(rownames(Table), "_"), "[", 1)
-    SampleID <- gsub(pattern = "BIO-2-033A-06", replacement = "BIO-2-033-06", SampleID)
-    SampleID <- gsub(pattern = "BIO-1-241-00-Aliq1", replacement = "BIO-1-241-00", SampleID)
-    SampleID <- gsub(pattern = "BIO-1-241-00-Aliq2", replacement = "BIO-1-241-00", SampleID)
+    SampleID <- gsub(pattern = sampleID_mislabeled, replacement = sampleID_corrected, SampleID)
+    SampleID <- gsub(pattern = paste0(aliq_id, "-Aliq1"), replacement = aliq_id, SampleID)
+    SampleID <- gsub(pattern = paste0(aliq_id, "-Aliq2"), replacement = aliq_id, SampleID)
     
     Table <- cbind(SampleID, Table)
     
