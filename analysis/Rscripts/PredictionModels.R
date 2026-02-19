@@ -34,7 +34,7 @@ ANALYSIS <- "MetaPhlAn2_microbiome"
 date = "2023Dec14"
 moduleRoot <- paste0("PredictionModels")
 params <- vector()
-params <- c(params, "~/git/BS_MicrobiomeAnalysis_2022")
+params <- c(params, "~/git/gut-microbiome-bariatric-weight-outcomes")
 params <- c(params, "MetaPhlAn2")
 # params <- c(params, "Kraken2")
 # params <- c(params, 0)

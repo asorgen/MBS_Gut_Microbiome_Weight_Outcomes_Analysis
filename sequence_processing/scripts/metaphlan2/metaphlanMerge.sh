@@ -7,7 +7,7 @@
 ################# EDIT ####################
 source "$(dirname "${BASH_SOURCE[0]}")/../config.sh"
 outputDir=${Dir}/04_metaphlan2
-inputList=${Dir}/BariatricSurgery_FileList.txt    # uses original file list, not 2022 update
+# inputList=${Dir}/BariatricSurgery_FileList.txt    # uses original file list, not 2022 update
 ###########################################
 
 # mkdir ${outputDir}/bowtie2Output

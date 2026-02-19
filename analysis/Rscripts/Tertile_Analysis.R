@@ -67,7 +67,7 @@ ANALYSIS <- "MetaPhlAn2_microbiome"
 moduleRoot <- paste0("Tertile_Analysis")
 params <- vector()
 params <- vector()
-params <- c(params, "~/git/BS_MicrobiomeAnalysis_2022")
+params <- c(params, "~/git/gut-microbiome-bariatric-weight-outcomes")
 # params <- c(params, "MetaPhlAn2")
 # params <- c(params, "Kraken2")
 # params <- c(params, 0)

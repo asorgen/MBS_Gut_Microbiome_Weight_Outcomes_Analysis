@@ -8,7 +8,7 @@ set.seed(1989)
 date = "2024Mar05"
 ANALYSIS <- "MetaPhlAn2_microbiome"
 params <- vector()
-params <- c(params, "~/git/BS_MicrobiomeAnalysis_2022")
+params <- c(params, "~/git/gut-microbiome-bariatric-weight-outcomes")
 params <- c(params, "MetaPhlAn2")
 # params <- c(params, 0)
 # params <- c(params, 1)

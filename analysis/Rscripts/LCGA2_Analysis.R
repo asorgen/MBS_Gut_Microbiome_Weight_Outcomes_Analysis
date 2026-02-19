@@ -33,7 +33,7 @@ rm(list=ls())
 ANALYSIS <- "MetaPhlAn2_microbiome"
 date = "2024Jun11"
 params <- vector()
-params <- c(params, "~/git/BS_MicrobiomeAnalysis_2022")
+params <- c(params, "~/git/gut-microbiome-bariatric-weight-outcomes")
 params <- c(params, "LCGA") # args[2]
 params <- c(params, 2) # args[3]
 params <- c(params, "RYGB") # args[4]

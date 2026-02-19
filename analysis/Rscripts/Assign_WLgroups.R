@@ -10,7 +10,7 @@ params <- vector()
 
 ANALYSIS <- "microbiome_n124"
 # ANALYSIS <- "microbiome_sex"
-params <- c(params, "~/git/BS_MicrobiomeAnalysis_2022")
+params <- c(params, "~/git/gut-microbiome-bariatric-weight-outcomes")
 # params <- c(params, "Quintile")
 # params <- c(params, "Quartile")
 params <- c(params, "Tertile")

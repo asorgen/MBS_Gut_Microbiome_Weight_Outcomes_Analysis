@@ -17,8 +17,6 @@ scriptPath=${ScriptDir}/humann2
 # mkdir ${outputDir}/pathAbundance
 # mkdir ${outputDir}/geneFamilies
 
-ID=BIO-2-010-01_CAACACCT-TGGTAGCT_S072_L006
-
 # for ID in $(cat $inputList); do
     
     # Assign variable names

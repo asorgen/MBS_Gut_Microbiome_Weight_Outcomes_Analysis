@@ -7,7 +7,7 @@ rm(list=ls())
 params <- vector()
 
 ANALYSIS <- "microbiome_n124"
-params <- c(params, "~/git/BS_MicrobiomeAnalysis_2022")
+params <- c(params, "~/git/gut-microbiome-bariatric-weight-outcomes")
 
 moduleRoot <- paste0("WeightMetaMerge")
 

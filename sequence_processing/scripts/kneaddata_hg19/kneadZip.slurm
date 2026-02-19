@@ -29,7 +29,7 @@ echo Using $SLURM_NTASKS processors across $SLURM_NNODES nodes
 
 ### Load modules
 
-# zip -r /nobackup/afodor_research/asorgen/BariatricSurgery/01_kneaddata_hg19.zip /nobackup/afodor_research/asorgen/BariatricSurgery/01_kneaddata_hg19/
+# zip -r ${Dir}/01_kneaddata_hg19.zip ${Dir}/01_kneaddata_hg19/
 unzip ${Dir}/01_kneaddata_hg19.zip -d ${Dir}_GMHI/BS_data -x "*/*_unmatched_*" "*/*_contam_*" "*/*.log"
 
 duration=$SECONDS
