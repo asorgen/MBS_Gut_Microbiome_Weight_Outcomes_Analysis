@@ -2,7 +2,7 @@
 
 Analysis code for the following publication:
 
-> Steffen, K.J., **Sorgen, A.A.**, Fodor, A.A., Carroll, I.M., et al. (2024). Early changes in the gut microbiota are associated with weight outcomes over 2 years following metabolic and bariatric surgery. *Obesity* 32(11):1985–1997.
+> Steffen, K.J., Sorgen, A.A., Fodor, A.A., Carroll, I.M., et al. (2024). Early changes in the gut microbiota are associated with weight outcomes over 2 years following metabolic and bariatric surgery. *Obesity* 32(11):1985–1997.
 
 ---
 
