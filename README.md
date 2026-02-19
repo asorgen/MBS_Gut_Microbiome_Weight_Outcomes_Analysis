@@ -50,7 +50,7 @@ Raw paired-end whole metagenome shotgun sequencing reads were processed through 
 
 ## Statistical Analysis (`analysis/`)
 
-Downstream statistical analysis is implemented in R and managed with [BioLockJ](https://github.com/BioLockJ-Dev-Team/BioLockJ). See [`analysis/README.md`](analysis/README.md) for the full script inventory and pipeline details.
+Downstream statistical analysis is implemented in R and managed with [BioLockJ](https://github.com/BioLockJ-Dev-Team/BioLockJ). The pipeline configuration used for the publication is [`analysis/BLJ_config_files/MetaPhlAn2_microbiome_analysis.properties`](analysis/BLJ_config_files/MetaPhlAn2_microbiome_analysis.properties). See [`analysis/BLJ_config_files/README.md`](analysis/BLJ_config_files/README.md) for descriptions of all pipeline configurations.
 
 ---
 
