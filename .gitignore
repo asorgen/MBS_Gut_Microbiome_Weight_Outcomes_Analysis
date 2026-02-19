@@ -24,6 +24,7 @@ Icon
 *.knit.md
 vignettes/*.html
 vignettes/*.pdf
+*.Rproj
 
 # ==============================================================================
 # IDE / Java
