@@ -1,4 +1,4 @@
-# gut-microbiome-bariatric-weight-outcomes
+# Gut Microbiome and Bariatric Surgery Weight Outcomes
 
 Analysis code for the following publication:
 

@@ -94,6 +94,7 @@ sequence_processing/BariatricSurgery_FileList*.txt
 
 # Personal path configuration (use config.sh.example as a template)
 sequence_processing/scripts/config.sh
+sequence_processing/scripts/copy
 
 # Compressed alignment files and SLURM output/error logs
 sequence_processing/**/*.bz2
