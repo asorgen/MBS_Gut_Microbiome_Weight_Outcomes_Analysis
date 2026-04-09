@@ -59,6 +59,9 @@ analysis/Rscripts/*.html
 # Exploratory/developmental scripts
 analysis/Rscripts/x_*
 
+# Non-numbered R scripts (pending review for relevance)
+analysis/Rscripts/[!0-9]*.R
+
 # Output figures/tables and presentations
 Final_Tables_Figures/
 Results_Presentations/
