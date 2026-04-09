@@ -16,8 +16,6 @@ This repository contains the full analysis pipeline examining whether early post
 
 ```
 .
-├── sequence_processing/      # Upstream sequence QC and profiling pipeline
-│   └── scripts/              # Shell, SLURM, and R scripts (see sequence_processing/README.md)
 ├── analysis/
 │   ├── BLJ_config_files/     # BioLockJ pipeline configuration files
 │   ├── input/
@@ -31,9 +29,9 @@ This repository contains the full analysis pipeline examining whether early post
 
 ---
 
-## Sequence Processing (`sequence_processing/`)
+## Sequence Processing
 
-Raw paired-end whole metagenome shotgun sequencing reads were processed through the following steps before downstream analysis. See [`sequence_processing/README.md`](sequence_processing/README.md) for full details, script locations, databases, and runtimes.
+Raw paired-end whole metagenome shotgun sequencing reads were processed prior to this analysis using the pipeline in the [Bariatric_Metagenomic_Sequence_Processing](https://github.com/asorgen/Bariatric_Metagenomic_Sequence_Processing) repository.
 
 | Step | Tool | Description |
 |---|---|---|
