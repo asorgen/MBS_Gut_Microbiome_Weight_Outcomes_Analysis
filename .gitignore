@@ -97,3 +97,5 @@ sequence_processing/scripts/copy
 sequence_processing/**/*.bz2
 sequence_processing/**/*.out
 sequence_processing/**/*.err
+analysis/Rplots.pdf
+
