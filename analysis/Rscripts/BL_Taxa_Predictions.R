@@ -7,7 +7,7 @@ rm(list=ls())
 
 ANALYSIS <- "microbiome_n124"
 params <- vector()
-params <- c(params, "~/git/gut-microbiome-bariatric-weight-outcomes")
+params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/gut-microbiome-bariatric-weight-outcomes")
 params <- c(params, "MetaPhlAn2")
 params <- c(params, 0)
 params <- c(params, 1)
@@ -51,7 +51,7 @@ if (args[1] == "BLJ") {
 } else {
   message("\n************* Running locally *************")
   gitRoot <- args[1]
-  gitInput <- file.path(gitRoot, "analysis", "input")
+  gitInput <- file.path(gitRoot, "..", "Data")
   gitScripts <- file.path(gitRoot, "analysis", "Rscripts")
   # message("gitRoot = ", gitRoot)
   
@@ -70,17 +70,19 @@ if (args[1] == "BLJ") {
     # rootInput <- paste0(root, "input/")
     # dir.create(rootInput, showWarnings = FALSE)
     
-    file.copy(gitInput,
-              root,
-              recursive = TRUE)
+    dir.create(file.path(root, "input"), showWarnings = FALSE, recursive = TRUE)
+    invisible(file.copy(
+              list.files(gitInput, full.names = TRUE, include.dirs = TRUE),
+              file.path(root, "input"),
+              recursive = TRUE))
     
   }
   
   module <- moduleRoot
   
-  if (args[2] == "MetaPhlAn2" | args[2] == "Kraken2") {
+  if (length(args) >= 2 && (args[2] == "MetaPhlAn2" | args[2] == "Kraken2")) {
     module <- paste0(args[2], module)
-  } 
+  }
   
   if (exists("end") == TRUE) {
     module <- paste0(module, "_BLto", end)
