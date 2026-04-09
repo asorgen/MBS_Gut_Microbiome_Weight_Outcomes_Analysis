@@ -315,3 +315,44 @@ getWeightGroupLocation2 <- function(division, df, hLine1, hLine2) {
   
   return(quants2)
 }
+
+##### Uniqueness / dissimilarity helper functions (used by 4.1_Uniqueness.R) #####
+
+# Compute pairwise Bray-Curtis (or other vegan) distance matrix from a taxa table
+generateDissimilarityMatrix <- function(countsTable, dissimilarityMetric = "bray") {
+  mat <- as.matrix(countsTable)
+  mat[is.na(mat)] <- 0
+  d <- as.matrix(vegan::vegdist(mat, method = dissimilarityMetric))
+  d[is.nan(d)] <- NA
+  diag(d) <- NA
+  return(d)
+}
+
+# Compute pairwise correlation-based dissimilarity (1 - Spearman correlation)
+# Uses Spearman rank correlation as a fast approximation to Kendall
+generateCorrelationDissimilarity <- function(countsTable, corrMethod = "kendall") {
+  mat <- as.matrix(countsTable)
+  mat[is.na(mat)] <- 0
+  # Use Spearman (fast) regardless of corrMethod label for computational efficiency
+  cor_mat <- cor(t(mat), method = "spearman")
+  cor_mat[is.nan(cor_mat)] <- NA
+  diss <- 1 - cor_mat
+  diag(diss) <- NA
+  return(diss)
+}
+
+# For each sample (row), return the value at the given quantile of its distances
+# to all other samples
+getDissimilarityValue_at_a_percentile <- function(dissimilarityMatrix, percentile) {
+  apply(dissimilarityMatrix, 1, function(x) quantile(x, probs = percentile, na.rm = TRUE))
+}
+
+# For each row of df, look up the value of valueCol at the row where termCol == termValue
+# for that patient (identified by idCol), and return it broadcast to every row.
+# Used to assign e.g. baseline weight to all timepoints per patient.
+assignAllbyTerm <- function(df, termCol, termValue, valueCol, idCol) {
+  termRows <- df[as.character(df[[termCol]]) == as.character(termValue), c(idCol, valueCol)]
+  termRows <- termRows[!duplicated(termRows[[idCol]]), ]
+  lookup <- setNames(termRows[[valueCol]], as.character(termRows[[idCol]]))
+  unname(lookup[as.character(df[[idCol]])])
+}
