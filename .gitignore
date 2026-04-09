@@ -61,6 +61,7 @@ analysis/Rscripts/x_*
 
 # Non-numbered R scripts (pending review for relevance)
 analysis/Rscripts/[!0-9]*.R
+!analysis/Rscripts/BL_Taxa_Predictions.R
 
 # Output figures/tables and presentations
 Final_Tables_Figures/
