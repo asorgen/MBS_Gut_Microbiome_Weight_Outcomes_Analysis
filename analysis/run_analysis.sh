@@ -58,16 +58,24 @@ classifier="MetaPhlAn2"
         cp "${scriptPath}" "${root}/analysis/Rscripts/functions.R" "${moduleDir}/script/"
 
         local logFile="${moduleDir}/log/${name}.log"
+        local elapsed hh mm ss
 
         echo -e "Running ${name} (${script})"
         touch "${moduleDir}/STARTED"
+        local start=$SECONDS
 
         if Rscript "${scriptPath}" "${root}" "$@" >> "${logFile}" 2>&1; then
+            elapsed=$(( SECONDS - start ))
+            hh=$(( elapsed / 3600 )); mm=$(( (elapsed % 3600) / 60 )); ss=$(( elapsed % 60 ))
             rm -f "${moduleDir}/STARTED"
             touch "${moduleDir}/COMPLETE"
+            printf "  %-50s [%02d:%02d:%02d]\n" "${name}" "$hh" "$mm" "$ss"
         else
+            elapsed=$(( SECONDS - start ))
+            hh=$(( elapsed / 3600 )); mm=$(( (elapsed % 3600) / 60 )); ss=$(( elapsed % 60 ))
             rm -f "${moduleDir}/STARTED"
             touch "${moduleDir}/FAILED"
+            printf "  %-50s [%02d:%02d:%02d] FAILED\n" "${name}" "$hh" "$mm" "$ss"
             error "Module ${name} failed. Check ${logFile}"
         fi
     }
