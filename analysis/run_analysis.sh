@@ -21,8 +21,9 @@
 set -euo pipefail
 
 root=$(cd "$(dirname "$0")/.." && pwd)                         # absolute path to repo root (one level up from analysis/)
-results_root=$(cd "${root}/.." && pwd)/MBS_Gut_Microbiome_Weight_Outcomes_Results  # sibling results directory
+results_root="/Users/aliciasorgen/UNCC/Projects/Bariatric_Surgery/Git_Repositories/MBS_Gut_Microbiome_Weight_Outcomes_Analysis/MBS_Gut_Microbiome_Weight_Outcomes_Results"  # sibling results directory
 classifier="MetaPhlAn2"
+
 
 # ─── Functions ─────────────────────────────────────────────────────────────────
 
@@ -64,7 +65,7 @@ classifier="MetaPhlAn2"
         touch "${moduleDir}/STARTED"
         local start=$SECONDS
 
-        if Rscript "${scriptPath}" "${root}" "$@" >> "${logFile}" 2>&1; then
+        if RESULTS_ROOT="${results_root}" INPUT_ROOT="${root}/Results/input" Rscript "${scriptPath}" "${root}" "$@" >> "${logFile}" 2>&1; then
             elapsed=$(( SECONDS - start ))
             hh=$(( elapsed / 3600 )); mm=$(( (elapsed % 3600) / 60 )); ss=$(( elapsed % 60 ))
             rm -f "${moduleDir}/STARTED"
@@ -80,6 +81,12 @@ classifier="MetaPhlAn2"
         fi
     }
 
+# ─── Defaults ─────────────────────────────────────────────────────────────────
+
+    from_section=1
+    to_section=5
+    clean_mode=false
+
 # ─── Single-module mode ────────────────────────────────────────────────────────
 
     if [[ "${1:-}" == *.R ]]; then
@@ -91,10 +98,6 @@ classifier="MetaPhlAn2"
     fi
 
 # ─── Parse --from / --to flags ────────────────────────────────────────────────
-
-    from_section=1
-    to_section=5
-    clean_mode=false
 
     while [[ "${1:-}" == --* ]]; do
         case "$1" in
@@ -124,7 +127,6 @@ classifier="MetaPhlAn2"
 # ─── 2. Taxa data preparation ──────────────────────────────────────────────────
 
     skip 2 || run_module 2.0_TaxaMetaMerge    2.0_TaxaMetaMerge.R    ${classifier}
-
     stop 2 && exit 0
 
 # ─── 3. Taxa-weight associations ──────────────────────────────────────────────
