@@ -1,17 +1,55 @@
 #Author: Alicia Sorgen
 #Date: 2023 June 19
 #Description: 
+# getwd()
 
-##### Edits for script #####
+# Script set up -----------------------------------------------------------------------------------------------------------------------
 rm(list=ls())
+H1 = function(comment) {
+   delim = "#"
+   side = "#"
+   fill = " "
+   maxLen <- 90
+   lineLen <- 60
+   message("")
+   message(paste0(strrep(delim, maxLen)))
+   if (nchar(comment) > lineLen) {
+      cut <- strsplit(comment, " ")
+      line <- ""
+      for (word in cut[[1]]) {
+         if ((nchar(line) + 1 + nchar(word)) > lineLen) {
+            edge1 <- round((maxLen - nchar(line))/2, 0) - 2
+            edge2 <- maxLen - edge1 - nchar(line) - 4
+            line_print <- paste0(side, strrep(fill, edge1), " ", line, " ", strrep(fill, edge2), side)
+            message(line_print)
+            line <- word
+         } else {
+            line <- paste(line, word)
+         }
+      }
+      edge1 <- round((maxLen - nchar(line))/2, 0) - 2
+      edge2 <- maxLen - edge1 - nchar(line) - 4
+      line_print <- paste0(side, strrep(fill, edge1), " ", line, " ", strrep(fill, edge2), side)
+      message(line_print)
+   } else {
+      edge1 <- round((maxLen - nchar(comment))/2, 0) - 2
+      edge2 <- maxLen - edge1 - nchar(comment) - 4
+      line_print <- paste0(side, strrep(fill, edge1), " ", comment, " ", strrep(fill, edge2), side)
+      message(line_print)
+   }
+   message(paste0(strrep(delim, maxLen)))
+   message("")
+}
 set.seed(1989)
 
-ANALYSIS <- "MetaPhlAn2_microbiome"
-params <- vector()
-params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/gut-microbiome-bariatric-weight-outcomes")
+
+# ANALYSIS <- "MetaPhlAn2_microbiome"
+# params <- vector()
+# params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/gut-microbiome-bariatric-weight-outcomes")
 # params <- c(params, "MetaPhlAn2")
 
 moduleRoot <- "4.1_Uniqueness"
+module <- moduleRoot
 
 taxaLevels <- vector()
 # taxaLevels <- c(taxaLevels, "phylum")
@@ -22,6 +60,7 @@ taxaLevels <- c(taxaLevels, "genus")
 # taxaLevels <- c(taxaLevels, "species")
 
 ##### Libraries #####
+H1("Libraries")
 R <- sessionInfo()
 message(R$R.version$version.string)
 
@@ -36,12 +75,17 @@ library(tidyr); message("tidyr: Version ", packageVersion("tidyr"))
 library(data.table); message("data.table: Version ", packageVersion("data.table"))
 library(vegan); message("vegan: Version ", packageVersion("vegan"))
 
+
+
 ##### Set up working environment #####
+params <- vector()
+params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/MBS_Gut_Microbiome_Weight_Outcomes_Analysis/MBS_Gut_Microbiome_Weight_Outcomes_Analysis")
+params <- c(params, "MetaPhlAn2")
+
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) == 0) {
   args <- params
-  rm(params)
 }
 
 if (args[1] == "BLJ") {
@@ -49,13 +93,13 @@ if (args[1] == "BLJ") {
 } else {
   message("\n************* Running locally *************")
   gitRoot    <- args[1]
-  gitInput   <- file.path(gitRoot, "..", "Data")
+  inputEnv <- Sys.getenv("INPUT_ROOT"); gitInput <- if (nchar(inputEnv) > 0) inputEnv else file.path(gitRoot, "..", "Data")
   gitScripts <- file.path(gitRoot, "analysis", "Rscripts")
 
-  root <- file.path(gitRoot, "Results")
+  resultsEnv <- Sys.getenv("RESULTS_ROOT"); root <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(gitRoot, "Results")
   dir.create(root, showWarnings = FALSE, recursive = TRUE)
 
-  if (!dir.exists(file.path(root, "input"))) {
+  if (length(list.files(file.path(root, "input"), recursive = TRUE)) == 0) {
     dir.create(file.path(root, "input"), showWarnings = FALSE, recursive = TRUE)
     invisible(file.copy(list.files(gitInput, full.names = TRUE, include.dirs = TRUE),
                         file.path(root, "input"), recursive = TRUE))
@@ -70,15 +114,20 @@ if (args[1] == "BLJ") {
   unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
 
   pipeRoot <- root
+  outputRoot <- root
 }
+
 if (args[1] == "BLJ") {
   pipeRoot  <- dirname(dirname(getwd()))
   moduleDir <- dirname(getwd())
+  outputRoot <- pipeRoot
 }
+
 
 
 
 ##### Set up functions file #####
+H1("Functions")
 funcScript <- if (args[1] == "BLJ") file.path(moduleDir, "resources", "functions.R") else file.path(gitScripts, "functions.R")
 source(funcScript)
 
@@ -89,11 +138,12 @@ ANALYSIS <- str[length(str)]
 rm(str, funcScript)
 
 ##### Set up input #####
-
+H1("Input")
 classifier <- args[2]
 
 prevModule <- paste0("Diversity_Metrics")
-inputDir <- paste0(pipeRoot,"/",str_subset(dir(pipeRoot), prevModule),"/output")
+inputDir <- paste0(outputRoot,"/",str_subset(dir(outputRoot), prevModule),"/output")
+message(inputDir)
 
 file <- paste0("_LogNormalizedCounts_", classifier, "_alpha.tsv")
 files <- list()
@@ -115,11 +165,11 @@ for (taxaLevel in taxaLevels) {
                                                                  24)))))
   files[[index]] <- logcounts_and_meta
   names(files)[index] <- taxaLevel
-  
-  
+
 }
 
 ##### Compute uniqueness metrics #####
+H1("Compute uniqueness metrics")
 for (taxaLevel in taxaLevels) {
   df <- files[[taxaLevel]]
 
@@ -145,7 +195,9 @@ for (taxaLevel in taxaLevels) {
 }
 
 ##### Set up output #####
+H1("Set up output")
 outputDir = file.path(moduleDir,"output/")
+message(outputDir)
 for (taxaLevel in taxaLevels) {
   outputDirLevel <- paste0(outputDir, taxaLevel, "/")
   outputDirLevelPlots <- paste0(outputDirLevel, "Plots/")
@@ -153,9 +205,20 @@ for (taxaLevel in taxaLevels) {
   dir.create(outputDirLevel, showWarnings = FALSE)
   dir.create(outputDirLevelPlots, showWarnings = FALSE)
   dir.create(outputDirLevelResults, showWarnings = FALSE)
-  
+
+}
+
+##### Write updated _alpha.tsv with uniqueness columns #####
+H1("Write updated alpha file with uniqueness metrics")
+for (taxaLevel in taxaLevels) {
+  df <- files[[taxaLevel]]
+  outputDirLevel <- paste0(outputDir, taxaLevel, "/")
+  outFile <- paste0(outputDirLevel, taxaLevel, "_LogNormalizedCounts_", classifier, "_alpha.tsv")
+  write.table(df, outFile, sep = "\t", quote = FALSE, row.names = FALSE)
+  message("Wrote: ", outFile)
 }
 ##### Script variables #####
+H1("Script variables")
 surgeryPalette <- c("steelblue", "gold")
 outcomePalette <- c("steelblue", "tomato")
 colorPalette <- c("pink", "purple", "orange", "green", "grey", "steelblue", "tomato")

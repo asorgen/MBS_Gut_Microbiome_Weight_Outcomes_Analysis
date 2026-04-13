@@ -35,13 +35,13 @@ if (args[1] == "BLJ") {
 } else {
   message("\n************* Running locally *************")
   gitRoot    <- args[1]
-  gitInput   <- file.path(gitRoot, "..", "Data")
+  inputEnv <- Sys.getenv("INPUT_ROOT"); gitInput <- if (nchar(inputEnv) > 0) inputEnv else file.path(gitRoot, "..", "Data")
   gitScripts <- file.path(gitRoot, "analysis", "Rscripts")
 
-  root <- file.path(gitRoot, "Results")
+  resultsEnv <- Sys.getenv("RESULTS_ROOT"); root <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(gitRoot, "Results")
   dir.create(root, showWarnings = FALSE, recursive = TRUE)
 
-  if (!dir.exists(file.path(root, "input"))) {
+  if (length(list.files(file.path(root, "input"), recursive = TRUE)) == 0) {
     dir.create(file.path(root, "input"), showWarnings = FALSE, recursive = TRUE)
     invisible(file.copy(list.files(gitInput, full.names = TRUE, include.dirs = TRUE),
                         file.path(root, "input"), recursive = TRUE))
