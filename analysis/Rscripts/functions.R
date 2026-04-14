@@ -356,3 +356,21 @@ assignAllbyTerm <- function(df, termCol, termValue, valueCol, idCol) {
   lookup <- setNames(termRows[[valueCol]], as.character(termRows[[idCol]]))
   unname(lookup[as.character(df[[idCol]])])
 }
+
+
+#####-- Import text files --------------------------------------------------------------------------------------------------------#####
+import_file <- function(file_path) {
+   file_name <- basename(file_path)
+   moduleInput <- file.path(moduleDir, 'input')
+   # dir.create(moduleInput, showWarnings = FALSE)
+   file.copy(from = file_path,
+             to   = file.path(moduleInput, file_name))
+   
+   if (endsWith(file_name, ".csv")) {
+      df <- read.delim(file_path, sep = ",", header = TRUE)
+   } else {
+      df <- read.delim(file_path, sep = "\t", header = TRUE)
+   }
+   message("[ Input file ] ---> ", file_path)
+   return(df)
+}
