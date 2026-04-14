@@ -107,3 +107,4 @@ sequence_processing/**/*.err
 analysis/Rplots.pdf
 
 analysis/private.config
+CLAUDE.md
