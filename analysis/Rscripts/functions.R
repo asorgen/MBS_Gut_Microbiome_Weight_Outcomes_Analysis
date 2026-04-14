@@ -374,3 +374,13 @@ import_file <- function(file_path) {
    message("[ Input file ] ---> ", file_path)
    return(df)
 }
+
+
+
+format_elapsed <- function(start) {
+   elapsed <- as.numeric(difftime(Sys.time(), start, units = "secs"))
+   sprintf("%02d:%02d:%02d",
+           elapsed %/% 3600,
+           (elapsed %% 3600) %/% 60,
+           floor(elapsed %% 60))
+}

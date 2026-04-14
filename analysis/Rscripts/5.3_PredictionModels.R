@@ -1,16 +1,49 @@
-#' ---
-#' title: "Prediciton Models"
-#' author: "Alicia Sorgen"
-#' date: December 7, 2023
-#' ---
+#' Author: Alicia Sorgen
+#' Date: December 7, 2023
+#' Description: Prediction Models
 
-## ----Setup, include=FALSE--------------------------------------------
-knitr::opts_chunk$set(echo=FALSE)
+# Setup -----
 rm(list=ls())
+H1 = function(comment) {
+   delim = "#"
+   side = "#"
+   fill = " "
+   maxLen <- 90
+   lineLen <- 60
+   message("")
+   message(paste0(strrep(delim, maxLen)))
+   if (nchar(comment) > lineLen) {
+      cut <- strsplit(comment, " ")
+      line <- ""
+      for (word in cut[[1]]) {
+         if ((nchar(line) + 1 + nchar(word)) > lineLen) {
+            edge1 <- round((maxLen - nchar(line))/2, 0) - 2
+            edge2 <- maxLen - edge1 - nchar(line) - 4
+            line_print <- paste0(side, strrep(fill, edge1), " ", line, " ", strrep(fill, edge2), side)
+            message(line_print)
+            line <- word
+         } else {
+            line <- paste(line, word)
+         }
+      }
+      edge1 <- round((maxLen - nchar(line))/2, 0) - 2
+      edge2 <- maxLen - edge1 - nchar(line) - 4
+      line_print <- paste0(side, strrep(fill, edge1), " ", line, " ", strrep(fill, edge2), side)
+      message(line_print)
+   } else {
+      edge1 <- round((maxLen - nchar(comment))/2, 0) - 2
+      edge2 <- maxLen - edge1 - nchar(comment) - 4
+      line_print <- paste0(side, strrep(fill, edge1), " ", comment, " ", strrep(fill, edge2), side)
+      message(line_print)
+   }
+   message(paste0(strrep(delim, maxLen)))
+   message("")
+}
 set.seed(1989)
 
 
-## ----Library, include=FALSE-----------------------------------
+# Libraries -----
+H1("Libraries"); start <- Sys.time()
 R <- sessionInfo()
 message(R$R.version$version.string)
 
@@ -29,77 +62,60 @@ library(dplyr); message("dplyr: Version ", packageVersion("dplyr"))
 # library(MuMIn); message("MuMIn: Version ", packageVersion("MuMIn"))
 
 
-## ----Script-Edits---------------------------------------------
-ANALYSIS <- "MetaPhlAn2_microbiome"
-date = "2023Dec14"
-moduleRoot <- "5.3_PredictionModels"
+# Script parameters -----
+H1("Script Parameters"); start <- Sys.time()
 params <- vector()
-params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/gut-microbiome-bariatric-weight-outcomes")
+params <- c(params, getOption("mbs.pipe_root", default = stop("Set options(mbs.pipe_root = ...) in your local .Rprofile (gitignored)")))
 params <- c(params, "MetaPhlAn2")
 # params <- c(params, "Kraken2")
-# params <- c(params, 0)
-# params <- c(params, 1)
-# params <- c(params, 6)
-# params <- c(params, 12)
-# params <- c(params, 18)
 params <- c(params, 24)
 params <- c(params, "LCGA")
 # params <- c(params, "GMM-1")
 # params <- c(params, "GMM-2")
 
-end_month <- params[length(params)]
-
-
+module <- "5.3_PredictionModels"
 level <- "genus"
 
 
-## ----Working-Environment, include=FALSE-----------------------
+# Working environment -----
+H1("Working Environment"); start <- Sys.time()
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) == 0) {
   args <- params
 }
 
-if (args[1] == "BLJ") {
-  message("\n************* Running in BioLockJ *************")
-} else {
-  message("\n************* Running locally *************")
-  gitRoot    <- args[1]
-  inputEnv <- Sys.getenv("INPUT_ROOT"); gitInput <- if (nchar(inputEnv) > 0) inputEnv else file.path(gitRoot, "..", "Data")
-  gitScripts <- file.path(gitRoot, "analysis", "Rscripts")
+message("\n************* Running locally *************")
+proj_root    <- args[1]
+inputEnv <- Sys.getenv("INPUT_ROOT"); input_root <- if (nchar(inputEnv) > 0) inputEnv else file.path(dirname(proj_root), "Data")
+script_root <- file.path(proj_root, basename(proj_root), "analysis", "Rscripts")
 
-  resultsEnv <- Sys.getenv("RESULTS_ROOT"); root <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(gitRoot, "Results")
-  dir.create(root, showWarnings = FALSE, recursive = TRUE)
+resultsEnv <- Sys.getenv("RESULTS_ROOT"); pipeRoot <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(proj_root, gsub('Analysis', 'Results', basename(proj_root)))
+# dir.create(pipeRoot, showWarnings = FALSE, recursive = TRUE)
 
-  if (length(list.files(file.path(root, "input"), recursive = TRUE)) == 0) {
-    dir.create(file.path(root, "input"), showWarnings = FALSE, recursive = TRUE)
-    invisible(file.copy(list.files(gitInput, full.names = TRUE, include.dirs = TRUE),
-                        file.path(root, "input"), recursive = TRUE))
-  }
+# if (length(list.files(file.path(pipeRoot, "input"), recursive = TRUE)) == 0) {
+#   dir.create(file.path(pipeRoot, "input"), showWarnings = FALSE, recursive = TRUE)
+#   invisible(file.copy(list.files(input_root, full.names = TRUE, include.dirs = TRUE),
+#                       file.path(pipeRoot, "input"), recursive = TRUE))
+# }
 
-  module <- moduleRoot
-  moduleDir <- file.path(root, module)
-  dir.create(moduleDir, showWarnings = FALSE)
+moduleDir <- file.path(pipeRoot, module)
+# dir.create(moduleDir, showWarnings = FALSE)
 
-  outputDir <- file.path(moduleDir, "output")
-  dir.create(outputDir, showWarnings = FALSE)
-  unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
+outputDir <- file.path(moduleDir, "output")
+# dir.create(outputDir, showWarnings = FALSE)
+unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
 
-  pipeRoot <- root
-}
-if (args[1] == "BLJ") {
-  pipeRoot  <- dirname(dirname(getwd()))
-  moduleDir <- dirname(getwd())
-}
+rm(proj_root, inputEnv, resultsEnv, module, params)
 
 
-#' 
-## ----Functions------------------------------------------------
-funcScript <- if (args[1] == "BLJ") file.path(moduleDir, "resources", "functions.R") else file.path(gitScripts, "functions.R")
-source(funcScript)
+# Functions -----
+H1("Functions"); start <- Sys.time()
+source(file.path(script_root, "functions.R"))
 
 
-## ----Input----------------------------------------------------
+# Input -----
+H1("Input"); start <- Sys.time()
 prevModule <- str_subset(dir(pipeRoot), "WeightMetaMerge")
 inputDir = paste0(pipeRoot,"/",prevModule,"/output/")
 inputFile <- "metadata.tsv"
@@ -113,10 +129,12 @@ inputFile <- "metadata.tsv"
 # logCountFile <- paste0(level, "_LogNormalizedCounts_", classifier, ".tsv")
 
 
-## ----Output----------------------------------------------------
+# Output -----
+H1("Output"); start <- Sys.time()
 outputDir = file.path(moduleDir,"output/")
 
-## ----Script-Variables-----------------------------------------
+# Script variables -----
+H1("Script Variables"); start <- Sys.time()
 month.labs <- c("Baseline", "1 month post-op", "6 months post-op", "12 months post-op",
                 "18 months post-op", "24 months post-op")
 
@@ -127,11 +145,11 @@ covariates <- c("Surgery")
 subjects <- c("SampleID", "PatientID")
 Palette <- c("orange", "blue", "green3", "black", "red")
 
-## ----Read-Table, echo=FALSE-----------------------------------
-
+# Read data -----
+H1("Read Data"); start <- Sys.time()
 # Read in table
 file.path <- paste0(inputDir, inputFile)
-myTable <- read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
+myTable <- import_file(file.path)
 
 # file.path <- paste0(inputDir2, logCountFile)
 # taxa.df <- read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
@@ -149,15 +167,17 @@ logLik <- vector()
 # R2c <- vector()
 Residual_SE <- vector()
 index <- 0
-## ----Multivariate_ML, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
+
+# Multivariate ML: time + Surgery -----
+H1("Multivariate ML: time + Surgery"); start <- Sys.time()
 index <- index +1
 
 df.1a <- df.1
 model <- lme( Weight_kg ~ time + Surgery, method = "ML", random = ~1 | PatientID, data = df.1a, na.action = na.omit )
 sm <- summary(model)
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 
@@ -171,7 +191,8 @@ logLik[index] <- sm$logLik
 # R2c[index] <- r.squaredGLMM(model)[2]
 Residual_SE[index] <- model$sigma
 
-## ----Multivariate_REML, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
+# Multivariate REML: time + Surgery -----
+H1("Multivariate REML: time + Surgery"); start <- Sys.time()
 index <- index + 1
 
 df.1a <- df.1
@@ -179,8 +200,8 @@ model <- lme( Weight_kg ~ time + Surgery, method = "REML", random = ~1 | Patient
 sm <- summary(model)
 
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 
@@ -195,16 +216,16 @@ logLik[index] <- sm$logLik
 Residual_SE[index] <- model$sigma
 
 
-
-## ----Univariate_ML, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
+# Univariate ML -----
+H1("Univariate ML: time"); start <- Sys.time()
 index <- index +1
 
 df.1a <- df.1
 model <- lme( Weight_kg ~ time, method = "ML", random = ~1 | PatientID, data = df.1a, na.action = na.omit )
 sm <- summary(model)
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 
@@ -219,7 +240,8 @@ logLik[index] <- sm$logLik
 Residual_SE[index] <- model$sigma
 
 
-## ----Univariate_REML, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
+# Univariate REML -----
+H1("Univariate REML: time"); start <- Sys.time()
 index <- index + 1
 
 df.1a <- df.1
@@ -227,8 +249,8 @@ model <- lme( Weight_kg ~ time, method = "REML", random = ~1 | PatientID, data =
 sm <- summary(model)
 
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 
@@ -243,16 +265,16 @@ logLik[index] <- sm$logLik
 Residual_SE[index] <- model$sigma
 
 
-
-## ----Multivariate_ML, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
+# Multivariate ML: Surgery + time -----
+H1("Multivariate ML: Surgery + time"); start <- Sys.time()
 index <- index +1
 
 df.1a <- df.1
 model <- lme( Weight_kg ~ Surgery + time, method = "ML", random = ~1 | PatientID, data = df.1a, na.action = na.omit )
 sm <- summary(model)
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 
@@ -267,7 +289,8 @@ logLik[index] <- sm$logLik
 Residual_SE[index] <- model$sigma
 
 
-## ----Multivariate_REML, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
+# Multivariate REML: Surgery + time -----
+H1("Multivariate REML: Surgery + time"); start <- Sys.time()
 index <- index + 1
 
 df.1a <- df.1
@@ -275,8 +298,8 @@ model <- lme( Weight_kg ~ Surgery + time, method = "REML", random = ~1 | Patient
 sm <- summary(model)
 
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 
@@ -290,16 +313,16 @@ logLik[index] <- sm$logLik
 # R2c[index] <- r.squaredGLMM(model)[2]
 Residual_SE[index] <- model$sigma
 
-## ----Univariate_ML_Surgery, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
-
+# Univariate ML by surgery -----
+H1("Univariate ML by surgery"); start <- Sys.time()
 index <- index + 1
 df.RYGB <- df.1[df.1$Surgery == "RYGB",]
 model <- lme( Weight_kg ~ time, method = "ML", random = ~1 | PatientID, data = df.RYGB, na.action = na.omit )
 sm <- summary(model)
 
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 Formula[index] <- paste0(model$call[2])
@@ -321,8 +344,8 @@ model <- lme( Weight_kg ~ time, method = "ML", random = ~1 | PatientID, data = d
 sm <- summary(model)
 
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 Formula[index] <- paste0(model$call[2])
@@ -336,17 +359,16 @@ logLik[index] <- sm$logLik
 Residual_SE[index] <- model$sigma
 
 
-
-## ----Univariate_REML_Surgery, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
-
+# Univariate REML by surgery -----
+H1("Univariate REML by surgery"); start <- Sys.time()
 index <- index + 1
 df.RYGB <- df.1[df.1$Surgery == "RYGB",]
 model <- lme( Weight_kg ~ time, method = "REML", random = ~1 | PatientID, data = df.RYGB, na.action = na.omit )
 sm <- summary(model)
 
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 Formula[index] <- paste0(model$call[2])
@@ -368,8 +390,8 @@ model <- lme( Weight_kg ~ time, method = "REML", random = ~1 | PatientID, data =
 sm <- summary(model)
 
 # Save the summary results to a text file
-writeLines(capture.output(summary(model)), 
-           con = file.path(outputDir, 
+writeLines(capture.output(summary(model)),
+           con = file.path(outputDir,
                            paste0(gsub(" ", "", model$call[2]), "_", model$call[5], "_", paste0(model$call[3]), ".txt")))
 
 Formula[index] <- paste0(model$call[2])
@@ -383,16 +405,13 @@ logLik[index] <- sm$logLik
 Residual_SE[index] <- model$sigma
 
 
-
-
-
-## ----Summary--------------------------------------------------
-results <- data.frame(Formula, Model, df, AIC, BIC, logLik, 
-                      # R2m, R2c, 
+# Summary -----
+H1("Summary"); start <- Sys.time()
+results <- data.frame(Formula, Model, df, AIC, BIC, logLik,
+                      # R2m, R2c,
                       Residual_SE)
 # results <- results[order(results$R2c, decreasing = TRUE),]
 
 outputName <- paste0("model_summary.tsv")
 outputPath <- file.path(outputDir, outputName)
 write.table(results, outputPath, sep="\t", quote = FALSE, row.names = FALSE)
-

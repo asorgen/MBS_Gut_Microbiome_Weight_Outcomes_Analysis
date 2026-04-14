@@ -1,10 +1,4 @@
-#' ---
-#' title: "2-class GMM-1 Analysis"
-#' author: "Alicia Sorgen"
-#' date: Dec 11, 2023
-#' ---
-#' 
-## ----include=FALSE--------------------------------------------
+# Set up ------------------------------------------------------------------
 rm(list=ls())
 set.seed(1989)
 H1 = function(comment) {
@@ -43,8 +37,7 @@ H1 = function(comment) {
    message("")
 }
 
-
-## ----Library, include=FALSE-----------------------------------
+# Libraries ----------------------------------------------------------------
 H1("Libraries")
 R <- sessionInfo()
 message(R$R.version$version.string); rm(R)
@@ -63,23 +56,17 @@ library(data.table); message("data.table: Version ", packageVersion("data.table"
 library(vegan); message("vegan: Version ", packageVersion("vegan"))
 
 
-## ----Script-Edits---------------------------------------------
-
-ANALYSIS <- "MetaPhlAn2_microbiome"
-date = "2024Jun11"
+# Script-specific edits -------------------------------------------------
 params <- vector()
-params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/gut-microbiome-bariatric-weight-outcomes")
+params <- c(params, getOption("mbs.pipe_root", default = stop("Set options(mbs.pipe_root = ...) in your local .Rprofile (gitignored)")))
 params <- c(params, "LCGA") # args[2]
 params <- c(params, 2) # args[3]
 params <- c(params, "RYGB") # args[4]
 params <- c(params, "Univariate") # args[5]
 params <- c(params, "Model2") # args[6]
-
-
 level <- "genus"
 
-
-## ----Working-Environment, include=FALSE-----------------------
+# Set working environment ---------------------------------------------------------
 H1("Working Environment")
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -87,48 +74,38 @@ if (length(args) == 0) {
    args <- params
 }
 
-if (args[1] == "BLJ") {
-   message("\n************* Running in BioLockJ *************")
-} else {
-   message("\n************* Running locally *************")
-   gitRoot    <- args[1]
-   inputEnv <- Sys.getenv("INPUT_ROOT"); gitInput <- if (nchar(inputEnv) > 0) inputEnv else file.path(gitRoot, "..", "Data")
-   gitScripts <- file.path(gitRoot, "analysis", "Rscripts")
-   
-   resultsEnv <- Sys.getenv("RESULTS_ROOT"); root <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(gitRoot, "Results")
-   dir.create(root, showWarnings = FALSE, recursive = TRUE)
-   
-   if (length(list.files(file.path(root, "input"), recursive = TRUE)) == 0) {
-      dir.create(file.path(root, "input"), showWarnings = FALSE, recursive = TRUE)
-      invisible(file.copy(list.files(gitInput, full.names = TRUE, include.dirs = TRUE),
-                          file.path(root, "input"), recursive = TRUE))
-   }
-   
-   module <- paste0("5.2_LCGA2_", args[4], "_", args[3], "Class")
-   moduleDir <- file.path(root, module)
-   dir.create(moduleDir, showWarnings = FALSE)
-   
-   outputDir <- file.path(moduleDir, "output")
-   dir.create(outputDir, showWarnings = FALSE)
-   unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
-   
-   pipeRoot <- root
-}
-if (args[1] == "BLJ") {
-   pipeRoot  <- dirname(dirname(getwd()))
-   moduleDir <- dirname(getwd())
-}
+message("\n************* Running locally *************")
+proj_root    <- args[1]
+message("Project root directory: ", proj_root, "\n")
+inputEnv <- Sys.getenv("INPUT_ROOT"); input_root <- if (nchar(inputEnv) > 0) inputEnv else file.path(dirname(proj_root), "Data")
+script_root <- file.path(proj_root, basename(proj_root), "analysis", "Rscripts")
 
+resultsEnv <- Sys.getenv("RESULTS_ROOT"); pipeRoot <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(proj_root, gsub('Analysis', 'Results', basename(proj_root)))
+# dir.create(pipeRoot, showWarnings = FALSE, recursive = TRUE)
 
-## ----Functions------------------------------------------------
+# if (length(list.files(file.path(pipeRoot, "input"), recursive = TRUE)) == 0) {
+#    dir.create(file.path(pipeRoot, "input"), showWarnings = FALSE, recursive = TRUE)
+#    invisible(file.copy(list.files(input_root, full.names = TRUE, include.dirs = TRUE),
+#                        file.path(pipeRoot, "input"), recursive = TRUE))
+# }
+
+module <- paste0("5.2_LCGA2_", args[4], "_", args[3], "Class")
+moduleDir <- file.path(pipeRoot, module)
+# dir.create(moduleDir, showWarnings = FALSE)
+
+outputDir <- file.path(moduleDir, "output/")
+# dir.create(outputDir, showWarnings = FALSE)
+# unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
+
+rm(proj_root, inputEnv, resultsEnv, module, params)
+
+# Set functions ------------------------------------------------
 H1("Functions")
-funcScript <- if (args[1] == "BLJ") file.path(moduleDir, "resources", "functions.R") else file.path(gitScripts, "functions.R")
-source(funcScript)
+message("Loading functions from: ", script_root)
+funcScript <- file.path(script_root, "functions.R")
+source(funcScript); rm(funcScript)
 
-
-#' 
-#' ### Input
-## ----Input-------------------------------------------------------------
+# Input ----------------------------------------------------------------
 H1("Input")
 prevModule <- str_subset(dir(pipeRoot), "WeightMetaMerge")
 inputDir = paste0(pipeRoot,"/",prevModule,"/output/")
@@ -139,12 +116,12 @@ inputDir2 = paste0(pipeRoot,"/",str_subset(dir(pipeRoot), prevModule2),"/output/
 logCountFile <- str_subset(dir(inputDir2), paste0(level, "_LogNormalizedCounts_.*_alpha\\.tsv"))
 
 
-
-## ----Output-------------------------------------------------------------
+# Output ----------------------------------------------------------------
 H1("Output")
-outputDir = file.path(moduleDir,"output/")
+checkpointDir <- file.path(outputDir, "checkpoints")
+dir.create(checkpointDir, showWarnings = FALSE, recursive = TRUE)
 
-## ----Script-Variables-----------------------------------------
+# Script variables ------------------------------------------------
 H1("Variables")
 months <- c(0,1,6,12,18,24)
 month.labs <- c("Baseline", "1 month post-op", "6 months post-op", "12 months post-op",
@@ -163,25 +140,25 @@ n_class <- as.numeric(args[3])
 surg <- args[4]
 lmeMethod <- args[5]
 ModelNum <- args[6]
-
+rm(args)
 Palette <- c("orange", "blue", "green3", "black", "red")
 
-## ----Read-Table, echo=FALSE-----------------------------------
+# Read tables in -------------------------------------------------
 H1("Read table")
 # Read in table
 filePath <- paste0(inputDir, inputFile)
-myTable <- read.table(filePath, sep="\t", header = TRUE, check.names = FALSE)
+myTable <- import_file(filePath)
 
 filePath <- paste0(inputDir2, logCountFile)
-taxa.df <- read.table(filePath, sep="\t", header = TRUE, check.names = FALSE)
+taxa.df <- import_file(filePath)
 
 # Trim variables
 df.1 <- myTable[ , which(colnames(myTable) %in% c(outcomes, repeatedMeasure, covariates, subjects))]
 
 
-## ----Data-Summary---------------------------------------------
+# Data summary -------------------------------------------------
 H1("Summary") 
-outputDirNew <- paste0(outputDir, "Data-Summary/")
+outputDirNew <- paste0(outputDir, "01_Data-Summary/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 n <- nrow(df.1)
@@ -209,9 +186,9 @@ outputPath <- file.path(outputDirNew, outputName)
 write.table(sum.stats, outputPath, sep="\t", quote = FALSE, row.names = FALSE)
 weight.table <- sum.stats[,c("time", "Surgery", "n")]
 
-## ----BMI-Figure-----------------------------------------------
+# BMI figure --------------------------------------------------------
 H1("BMI figures") 
-outputDirNew <- paste0(outputDir, "BMI-Figure/")
+outputDirNew <- paste0(outputDir, "02_BMI-Figure/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 # Trim variables
@@ -276,12 +253,12 @@ plot <- ggplot() +
 
 
 testPlot <- ggplot() +
-   geom_point(data = df.RYGB.O, aes(x = time, y = median, color = "Median and IQR"), shape = 15, size = 3) +
+   geom_point(data = df.RYGB.O, aes(x = time, y = median, color = "Median and IQR"), shape = 15, linewidth = 3) +
    geom_errorbar(data=df.RYGB.O, mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color="black") + 
-   geom_point(data = df.SG.O, aes(x = time, y = median, color = "Median and IQR"), shape = 15, size = 3) +
+   geom_point(data = df.SG.O, aes(x = time, y = median, color = "Median and IQR"), shape = 15, linewidth = 3) +
    geom_errorbar(data=df.SG.O, mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color="black") + 
-   geom_line(data = df.RYGB.O, aes(x = time, y = mean, color = "RYGB (mean)") , size=1) +
-   geom_line(data = df.SG.O, aes(x = time, y = mean, color = "SG (mean)"), size=1) +
+   geom_line(data = df.RYGB.O, aes(x = time, y = mean, color = "RYGB (mean)") , linewidth=1) +
+   geom_line(data = df.SG.O, aes(x = time, y = mean, color = "SG (mean)"), linewidth=1) +
    labs(x = "Follow-up time (months)", y = "Weight Change (%)") +
    scale_colour_manual(name="", values=c("black","blue", "forestgreen"),
                        guide = guide_legend(override.aes = list(
@@ -313,10 +290,9 @@ dev.off()
 
 
 
-
-## ----ExcessWeight, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
+# Excess Weight -------------------------------------------------
 H1("ExcessWeight")
-outputDirNew <- paste0(outputDir, "ExcessWeight/")
+outputDirNew <- paste0(outputDir, "03_ExcessWeight/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 # Trim variables
@@ -351,9 +327,9 @@ outputName <- paste0("observed_excess_weight_change_desc_statistics.tsv")
 outputPath <- file.path(outputDirNew, outputName)
 write.table(sum.stats, outputPath, sep="\t", quote = FALSE, row.names = FALSE)
 
-## ----Figure1, echo=FALSE, fig.height=5, fig.width=10, warning=FALSE----
+# Figure 1 -------------------------------------------------------------
 H1("Figure 1")
-outputDirNew <- paste0(outputDir, "Figure1/")
+outputDirNew <- paste0(outputDir, "04_Figure1/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 # Trim variables
@@ -525,10 +501,26 @@ outputPath <- file.path(outputDirNew, outputName)
 write.table(sum.stats, outputPath, sep="\t", quote = FALSE, row.names = FALSE)
 rm(df.RYGB, df.RYGB.M, df.RYGB.O, df.4, df.SG, df.SG.M, df.SG.O, df.surg)
 rm(legend, model, plot, stat.test, sum.stats, testPlot, weight.table)
-## ----Model----------------------------------------------------
+
+# Model----------------------------------------------------
+format_elapsed <- function(start) {
+   elapsed <- as.numeric(difftime(Sys.time(), start, units = "secs"))
+   sprintf("%02d:%02d:%02d",
+           elapsed %/% 3600,
+           (elapsed %% 3600) %/% 60,
+           floor(elapsed %% 60))
+}
+
+start <- Sys.time()
 H1("Model")
-outputDirNew <- paste0(outputDir, "Model/")
+outputDirNew <- paste0(outputDir, "05_Model/")
 dir.create(outputDirNew, showWarnings = FALSE)
+
+.model_ckpt <- file.path(checkpointDir, "model_objects.rds")
+if (file.exists(.model_ckpt)) {
+   message("CHECKPOINT: Model section already complete. Loading saved objects.")
+   .tmp <- readRDS(.model_ckpt); df.merged <- .tmp$df.merged; ng <- .tmp$ng; rm(.tmp)
+} else {
 
 plotList <- list()
 gmmSummary <- data.frame()
@@ -1045,14 +1037,16 @@ for (p in 1:length(plotList)) {
 
 dev.off()
 
+saveRDS(list(df.merged = df.merged, ng = ng), .model_ckpt)
+message("CHECKPOINT: Model objects saved.")
+} # end model checkpoint if/else
 
 
+cat("Elapsed:", format_elapsed(start), "\n")
 
-
-
-## ----Figure2-code, fig.height=5, fig.width=10, include=FALSE----
+# Figure 2 --------------------------------------------------
 H1("Figure 2")
-outputDirNew <- paste0(outputDir, "Figure2/")
+outputDirNew <- paste0(outputDir, "06_Figure2/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 df.2 <- df.merged[df.merged$time == 0,]
@@ -1087,10 +1081,18 @@ print(plot)
 dev.off()
 
 
-## ----Overall-MLM, fig.height=5, fig.width=10, warning=FALSE, include=FALSE----
+# Overall MLM ----------------------------------------------------
+start <- Sys.time()
 H1("Overall MLM")
-outputDirNew <- paste0(outputDir, "Overall_MLM/")
+outputDirNew <- paste0(outputDir, "07_Overall_MLM/")
 dir.create(outputDirNew, showWarnings = FALSE)
+
+.overall_mlm_ckpt <- file.path(checkpointDir, "overall_mlm_objects.rds")
+if (file.exists(.overall_mlm_ckpt)) {
+   message("CHECKPOINT: Overall MLM section already complete. Loading saved objects.")
+   .tmp <- readRDS(.overall_mlm_ckpt)
+   merged.results <- .tmp$merged.results; main.DF <- .tmp$main.DF; rm(.tmp)
+} else {
 
 months <- c(0, 1, 6, 12, 18, 24)
 
@@ -1207,12 +1209,26 @@ if (length(results.df.list) > 1) {
 filename.3 <- paste0(level,  "_by_Timepoint+Surgery+Observed_Modeled_Weight_MixedLinearModelResults", modelType, "_", n_class,".tsv")
 write.table(merged.results, paste0(outputResults, filename.3),sep="\t",row.names = FALSE,quote = FALSE)
 
+saveRDS(list(merged.results = merged.results, main.DF = main.DF), .overall_mlm_ckpt)
+message("CHECKPOINT: Overall MLM objects saved.")
+} # end overall MLM checkpoint if/else
+cat("Elapsed:", format_elapsed(start), "\n")
 
-## ----LinearModel-Analysis-p-values, fig.height=5, fig.width=10, warning=FALSE, include=FALSE----
+# Linear model analysis of p-values ------------------------------------------------
+start <- Sys.time()
 H1("Linear Model")
-outputDirNew <- paste0(outputDir, "LinearModel_Analysis_pvalues/")
+outputDirNew <- paste0(outputDir, "08_LinearModel_Analysis_pvalues/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
+.lm_pval_outputResults <- paste0(outputDirNew, "ResultsTables/")
+.lm_pval_filename5 <- paste0(level, "_by_Timepoint_groupedby_", modelType, "_", n_class, "_LinearModelResults.tsv")
+.lm_pval_sentinel <- paste0(.lm_pval_outputResults, .lm_pval_filename5)
+if (file.exists(.lm_pval_sentinel)) {
+   message("CHECKPOINT: Linear Model p-values section already complete. Restoring paths.")
+   outputResults <- .lm_pval_outputResults
+   filePath.5 <- .lm_pval_sentinel
+   dir.create(outputResults, showWarnings = FALSE)
+} else {
 
 months <- c(0, 1, 6, 12, 18, 24)
 
@@ -1438,11 +1454,13 @@ qFrameFinal <- qFrameFinal[ order( qFrameFinal$groupPValues1),]
 filename.5 <- paste0(level, "_by_Timepoint_groupedby_", modelType, "_", n_class,"_LinearModelResults.tsv")
 filePath.5 <- paste0(outputResults, filename.5)
 write.table(qFrameFinal, file=filePath.5, sep="\t", row.names=FALSE)
+message("CHECKPOINT: Linear Model p-values section complete.")
+} # end linear model p-values checkpoint if/else
+cat("Elapsed:", format_elapsed(start), "\n")
 
-
-## ----Figure3-code, fig.height=5, fig.width=7, warning=FALSE, include=FALSE----
+# Figure 3 - Boxplots of significant taxa over time ------------------------------------------------
 H1("Figure 3")
-outputDirNew <- paste0(outputDir, "Figure3/")
+outputDirNew <- paste0(outputDir, "09_Figure3/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 
@@ -1606,10 +1624,10 @@ dev.off()
 
 # knitr::knit_exit()
 
-## ----Figure4-code, fig.height=5, fig.width=7, warning=FALSE, include=FALSE----
+# Figure 4 - Boxplots of significant taxa over time with MLM p-values ------------------------------------------------
 H1("Figure 4")
 
-outputDirNew <- paste0(outputDir, "Figure4/")
+outputDirNew <- paste0(outputDir, "10_Figure4/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 viruses <- c("Viruses_noname", "C2likevirus")
@@ -1773,10 +1791,10 @@ dev.off()
 # knitr::knit_exit()
 
 
-## ----Figure5-code, fig.height=5, fig.width=7, warning=FALSE, include=FALSE----
+# Figure 5 - Boxplots of significant taxa over time with MLM p-values without viruses ------------------------------------------------
 H1("Figure 5")
 
-outputDirNew <- paste0(outputDir, "Figure5/")
+outputDirNew <- paste0(outputDir, "11_Figure5/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 viruses <- c("Viruses_noname", "C2likevirus")
@@ -1939,10 +1957,10 @@ dev.off()
 
 # knitr::knit_exit()
 
-## ----Figure6-code, fig.height=5, fig.width=7, warning=FALSE, include=FALSE----
+# Figure 6 - Boxplots of significant taxa over time with MLM p-values without viruses and with surgery as a covariate ------------------------------------------------
 H1("Figure 6")
 
-outputDirNew <- paste0(outputDir, "Figure6/")
+outputDirNew <- paste0(outputDir, "12_Figure6/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 viruses <- c("Viruses_noname", "C2likevirus")
@@ -2105,10 +2123,16 @@ dev.off()
 
 # knitr::knit_exit()
 
-## ----LinearModel-Analyses,  include=FALSE---------------------
+# Linear Model-Analyses ------------------------------------------------
+start <- Sys.time()
 H1("LinearModel-Analyses")
-outputDirNew <- paste0(outputDir, "LinearModel_Analyses/")
+outputDirNew <- paste0(outputDir, "13_LinearModel_Analyses/")
 dir.create(outputDirNew, showWarnings = FALSE)
+
+.lm_analyses_sentinel <- file.path(outputDirNew, paste0(level, "_analysis1.tsv"))
+if (file.exists(.lm_analyses_sentinel)) {
+   message("CHECKPOINT: LinearModel-Analyses section already complete, skipping.")
+} else {
 
 months <- c(0, 1, 6, 12, 18, 24)
 
@@ -2240,11 +2264,15 @@ for (analysis in c("analysis1", "analysis2", "analysis3", "analysis4")) {
    write.table(qFrameFinal, file=filePath, sep="\t", row.names=FALSE)
    
 } # for (analysis in c(analysis1, analysis2, analysis3, analysis4))
+message("CHECKPOINT: LinearModel-Analyses section complete.")
+} # end linear model analyses checkpoint if/else
+start <- Sys.time()
+# your code here
+cat("Elapsed:", format_elapsed(start), "\n")
 
-
-#---- Taxa ~ Timepoint (by GMM-1 group) linear model plots ----
+# Taxa ~ Timepoint (by GMM-1 group) linear model plots ------------------------------------------------
 H1("Taxa ~ Timepoint (by GMM-1 group) linear model plots")
-outputDirNew <- paste0(outputDir, "Taxa_by_Timepoint/")
+outputDirNew <- paste0(outputDir, "14_Taxa_by_Timepoint/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 months <- c(0, 1, 6, 12, 18, 24)
@@ -2295,10 +2323,17 @@ for ( t in 2:length(months) ) {
 dev.off()
 
 
-#------ Taxa ~ group (by Timepoint) linear models -----
+# Taxa ~ group (by Timepoint) linear models ------------------------------------------------
 H1("Taxa ~ group (by Timepoint) linear models")
-outputDirNew <- paste0(outputDir, "Taxa_by_Group_and_Timepoint/")
+outputDirNew <- paste0(outputDir, "15_Taxa_by_Group_and_Timepoint/")
 dir.create(outputDirNew, showWarnings = FALSE)
+
+.taxa_grp_sentinel <- file.path(outputDirNew, paste0(level, "_by_", modelType, n_class, "_groupedby_Timepoint_LinearModel_BoxPlots.pdf"))
+if (file.exists(.taxa_grp_sentinel)) {
+   message("CHECKPOINT: Taxa ~ group section already complete, skipping.")
+   colors <- c("orange", "blue", "green3", "black", "red")
+   colorPalette <- colors[1:n_class]
+} else {
 
 months <- c(0, 1, 6, 12, 18, 24)
 
@@ -2411,11 +2446,13 @@ for (x in 1:length(plotList)) {
    print(plotList[[x]])
 }
 dev.off()
+message("CHECKPOINT: Taxa ~ group section complete.")
+} # end taxa_by_group checkpoint if/else
 
 
-## ----diversity-setup------------------------------------------
+# Diversity-setup ------------------------------------------------
 H1("Diversity Setup")
-outputDirNew <- paste0(outputDir, "Diversity/")
+outputDirNew <- paste0(outputDir, "16_Diversity/")
 dir.create(outputDirNew, showWarnings = FALSE)
 
 diversity.df <- taxa.df[which(colnames(taxa.df) %in% c("Bray_Uniqueness", "Kendall_Uniqueness", "ShannonIndex", "SimpsonIndex", "Richness", "Evenness", "SampleID"))]
@@ -2423,7 +2460,7 @@ DF <- merge(df.merged, diversity.df, by = "SampleID")
 outputDirResults <- paste0(outputDirNew, "ResultsTables/")
 dir.create(outputDirResults, showWarnings = FALSE)
 
-##### Bray-Curtis ~ Weight Group & Timepoint PCoA #####
+## Bray-Curtis ~ Weight Group & Timepoint PCoA ------------------------------------------------
 H1("Bray-Curtis ~ Weight Group & Timepoint PCoA")
 taxaStart <- which(colnames(main.DF) == "class") + 1
 

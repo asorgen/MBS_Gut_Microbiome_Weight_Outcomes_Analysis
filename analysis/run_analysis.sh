@@ -20,16 +20,16 @@
 
 set -euo pipefail
 
-project_root=$(cd "$(dirname "$0")/../.." && pwd); echo "Project root: ${project_root}"
+project_root=$(cd "$(dirname "$0")/../.." && pwd); #echo "Project root: ${project_root}"
 # Project root: /Users/aliciasorgen/UNCC/Projects/Bariatric_Surgery/Git_Repositories/MBS_Gut_Microbiome_Weight_Outcomes_Analysis
 
-script_root=$(cd "$(dirname "$0")/.." && pwd); echo "Script root: ${script_root}"
+script_root=$(cd "$(dirname "$0")/.." && pwd); #echo "Script root: ${script_root}"
 # Script root: /Users/aliciasorgen/UNCC/Projects/Bariatric_Surgery/Git_Repositories/MBS_Gut_Microbiome_Weight_Outcomes_Analysis/MBS_Gut_Microbiome_Weight_Outcomes_Analysis
 
-results_root="${project_root}/MBS_Gut_Microbiome_Weight_Outcomes_Results"; echo "Results root: ${results_root}"
+results_root="${project_root}/MBS_Gut_Microbiome_Weight_Outcomes_Results"; #echo "Results root: ${results_root}"
 # Results root: /Users/aliciasorgen/UNCC/Projects/Bariatric_Surgery/Git_Repositories/MBS_Gut_Microbiome_Weight_Outcomes_Analysis/MBS_Gut_Microbiome_Weight_Outcomes_Results
 
-input_root=$(cd "$(dirname "$0")/../../../Data" && pwd); echo "Input root: ${input_root}"
+input_root=$(cd "$(dirname "$0")/../../../Data" && pwd); #echo "Input root: ${input_root}"
 classifier="MetaPhlAn2"
 
 # ─── Functions ─────────────────────────────────────────────────────────────────
@@ -42,12 +42,12 @@ classifier="MetaPhlAn2"
     #   args       : params passed to the R script AFTER the repo root path
     run_module() {
         local name=$1; echo -e "\n=== Module: ${name} ==="
-        local script=$2; echo 
+        local script=$2; #echo 
         shift 2
-        local scriptPath="${script_root}/analysis/Rscripts/${script}"; echo "Script path: ${scriptPath}"
+        local scriptPath="${script_root}/analysis/Rscripts/${script}"; #echo "Script path: ${scriptPath}"
         [[ ! -f "${scriptPath}" ]] && error "Script not found: analysis/Rscripts/${script}"
 
-        local moduleDir="${results_root}/${name}"; echo "Module directory: ${moduleDir}"
+        local moduleDir="${results_root}/${name}"; #echo "Module directory: ${moduleDir}"
         mkdir -p "${moduleDir}/input" "${moduleDir}/output" "${moduleDir}/log" "${moduleDir}/script"
 
         # In clean mode, wipe everything and re-run; otherwise skip completed modules
@@ -65,14 +65,14 @@ classifier="MetaPhlAn2"
         # Copy script and shared functions file into module script dir
         cp "${scriptPath}" "${script_root}/analysis/Rscripts/functions.R" "${moduleDir}/script/"
 
-        local logFile="${moduleDir}/log/${name}.log"; echo "Log file: ${logFile}"
+        local logFile="${moduleDir}/log/${name}.log"; #echo "Log file: ${logFile}"
         local elapsed hh mm ss
 
         echo -e "Running ${name} (${script})"
         touch "${moduleDir}/STARTED"
         local start=$SECONDS
 
-        if RESULTS_ROOT="${results_root}" INPUT_ROOT="${input_root}" Rscript "${scriptPath}" "${script_root}" "$@" >> "${logFile}" 2>&1; then
+        if RESULTS_ROOT="${results_root}" INPUT_ROOT="${input_root}" R_PROFILE_USER="${script_root}/.Rprofile" Rscript "${scriptPath}" "${project_root}" "$@" > "${logFile}" 2>&1; then
             elapsed=$(( SECONDS - start ))
             hh=$(( elapsed / 3600 )); mm=$(( (elapsed % 3600) / 60 )); ss=$(( elapsed % 60 ))
             rm -f "${moduleDir}/STARTED"

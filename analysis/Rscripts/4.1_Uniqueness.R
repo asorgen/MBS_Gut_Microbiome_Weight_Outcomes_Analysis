@@ -43,21 +43,6 @@ H1 = function(comment) {
 set.seed(1989)
 
 
-# ANALYSIS <- "MetaPhlAn2_microbiome"
-# params <- vector()
-# params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/gut-microbiome-bariatric-weight-outcomes")
-# params <- c(params, "MetaPhlAn2")
-
-moduleRoot <- "4.1_Uniqueness"
-module <- moduleRoot
-
-taxaLevels <- vector()
-# taxaLevels <- c(taxaLevels, "phylum")
-# taxaLevels <- c(taxaLevels, "class")
-# taxaLevels <- c(taxaLevels, "order")
-# taxaLevels <- c(taxaLevels, "family")
-taxaLevels <- c(taxaLevels, "genus")
-# taxaLevels <- c(taxaLevels, "species")
 
 ##### Libraries #####
 H1("Libraries")
@@ -77,72 +62,67 @@ library(vegan); message("vegan: Version ", packageVersion("vegan"))
 
 
 
-##### Set up working environment #####
+# Script-specific edits -------------------------------------------------
 params <- vector()
-params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/MBS_Gut_Microbiome_Weight_Outcomes_Analysis/MBS_Gut_Microbiome_Weight_Outcomes_Analysis")
+params <- c(params, getOption("mbs.pipe_root", default = stop("Set options(mbs.pipe_root = ...) in your local .Rprofile (gitignored)")))
 params <- c(params, "MetaPhlAn2")
 
+module <- "4.1_Uniqueness"
+
+taxaLevels <- vector()
+# taxaLevels <- c(taxaLevels, "phylum")
+# taxaLevels <- c(taxaLevels, "class")
+# taxaLevels <- c(taxaLevels, "order")
+# taxaLevels <- c(taxaLevels, "family")
+taxaLevels <- c(taxaLevels, "genus")
+# taxaLevels <- c(taxaLevels, "species")
+
+
+# Set working environment ---------------------------------------------------------
+H1("Working Environment")
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) == 0) {
-  args <- params
+   args <- params
 }
 
-if (args[1] == "BLJ") {
-  message("\n************* Running in BioLockJ *************")
-} else {
-  message("\n************* Running locally *************")
-  gitRoot    <- args[1]
-  inputEnv <- Sys.getenv("INPUT_ROOT"); gitInput <- if (nchar(inputEnv) > 0) inputEnv else file.path(gitRoot, "..", "Data")
-  gitScripts <- file.path(gitRoot, "analysis", "Rscripts")
+message("\n************* Running locally *************")
+proj_root    <- args[1]
+inputEnv <- Sys.getenv("INPUT_ROOT"); input_root <- if (nchar(inputEnv) > 0) inputEnv else file.path(dirname(proj_root), "Data")
+script_root <- file.path(proj_root, basename(proj_root), "analysis", "Rscripts")
 
-  resultsEnv <- Sys.getenv("RESULTS_ROOT"); root <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(gitRoot, "Results")
-  dir.create(root, showWarnings = FALSE, recursive = TRUE)
+resultsEnv <- Sys.getenv("RESULTS_ROOT"); pipeRoot <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(proj_root, gsub('Analysis', 'Results', basename(proj_root)))
+# dir.create(pipeRoot, showWarnings = FALSE, recursive = TRUE)
 
-  if (length(list.files(file.path(root, "input"), recursive = TRUE)) == 0) {
-    dir.create(file.path(root, "input"), showWarnings = FALSE, recursive = TRUE)
-    invisible(file.copy(list.files(gitInput, full.names = TRUE, include.dirs = TRUE),
-                        file.path(root, "input"), recursive = TRUE))
-  }
+# if (length(list.files(file.path(pipeRoot, "input"), recursive = TRUE)) == 0) {
+#    dir.create(file.path(pipeRoot, "input"), showWarnings = FALSE, recursive = TRUE)
+#    invisible(file.copy(list.files(input_root, full.names = TRUE, include.dirs = TRUE),
+#                        file.path(pipeRoot, "input"), recursive = TRUE))
+# }
 
-  module <- moduleRoot
-  moduleDir <- file.path(root, module)
-  dir.create(moduleDir, showWarnings = FALSE)
+moduleDir <- file.path(pipeRoot, module)
+# dir.create(moduleDir, showWarnings = FALSE)
 
-  outputDir <- file.path(moduleDir, "output")
-  dir.create(outputDir, showWarnings = FALSE)
-  unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
+outputDir <- file.path(moduleDir, "output")
+# dir.create(outputDir, showWarnings = FALSE)
+unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
 
-  pipeRoot <- root
-  outputRoot <- root
-}
-
-if (args[1] == "BLJ") {
-  pipeRoot  <- dirname(dirname(getwd()))
-  moduleDir <- dirname(getwd())
-  outputRoot <- pipeRoot
-}
+rm(proj_root, inputEnv, resultsEnv, module, params)
 
 
 
 
 ##### Set up functions file #####
 H1("Functions")
-funcScript <- if (args[1] == "BLJ") file.path(moduleDir, "resources", "functions.R") else file.path(gitScripts, "functions.R")
+funcScript <- if (args[1] == "BLJ") file.path(moduleDir, "resources", "functions.R") else file.path(script_root, "functions.R")
 source(funcScript)
-
-str <- sapply(strsplit(pipeRoot, "_analysis"), "[", 1)
-str <- str_split(str, "/")
-str <- do.call(rbind, str)
-ANALYSIS <- str[length(str)]
-rm(str, funcScript)
 
 ##### Set up input #####
 H1("Input")
 classifier <- args[2]
 
-prevModule <- paste0("Diversity_Metrics")
-inputDir <- paste0(outputRoot,"/",str_subset(dir(outputRoot), prevModule),"/output")
+prevModule <- str_subset(dir(pipeRoot), "Diversity_Metrics")
+inputDir = paste0(pipeRoot,"/",prevModule,"/output/")
 message(inputDir)
 
 file <- paste0("_LogNormalizedCounts_", classifier, "_alpha.tsv")
@@ -156,7 +136,8 @@ for (taxaLevel in taxaLevels) {
   
   filePath <- file.path(inputDir, taxaLevel, fileName)
   
-  logcounts_and_meta = read.table(filePath, header = T, sep = "\t")
+  logcounts_and_meta = import_file(filePath)
+  # logcounts_and_meta = read.table(filePath, header = T, sep = "\t")
   logcounts_and_meta$time  <- ifelse(logcounts_and_meta$Timepoint == "BL", 0,
                                      ifelse(logcounts_and_meta$Timepoint == "ONE", 1,
                                             ifelse(logcounts_and_meta$Timepoint == "SIX", 6,
@@ -639,7 +620,7 @@ for (taxaLevel in taxaLevels) {
       
     } # for(i in my_list_of_percentiles)
     
-    file.path <- paste0(taxaLevel, "_", beta,"_Uniqueness_Percentiles_by_Timepoint_Tukey_Results.tsv")
+    file.path <- paste0(outputDirLevelResults, taxaLevel, "_", beta,"_Uniqueness_Percentiles_by_Timepoint_Tukey_Results.tsv")
     write.table(statResults, file.path, sep="\t",quote = FALSE, row.names = FALSE)
     
     fileName <-   paste0(taxaLevel, "_", beta,"_Uniqueness_Percentiles_by_Timepoint_Tukey_BoxPlot.pdf")
@@ -737,7 +718,7 @@ for (taxaLevel in taxaLevels) {
       
     } # for(i in my_list_of_percentiles)
     
-    file.path <- paste0(taxaLevel, "_", beta,"_Uniqueness_Percentiles_by_Timepoint_by_Surgery_Tukey_Results.tsv")
+    file.path <- paste0(outputDirLevelResults, taxaLevel, "_", beta,"_Uniqueness_Percentiles_by_Timepoint_by_Surgery_Tukey_Results.tsv")
     write.table(statResults, file.path, sep="\t",quote = FALSE, row.names = FALSE)
     
     fileName <-   paste0(taxaLevel, "_", beta,"_Uniqueness_Percentiles_by_Timepoint_by_Surgery_Tukey_BoxPlot.pdf")
@@ -1121,32 +1102,38 @@ for (taxaLevel in taxaLevels) {
       df <- na.omit(df)
       
       # mlm <- lme( DataCol ~ Timepoint + Surgery +  Weight_kg, method = "REML", random = ~1 | PatientID, data = df )
-      mlm <- lme( DataCol ~ Timepoint, method = "REML", random = ~1 | PatientID, data = df )
-      fit<-anova(mlm)
-      
-      pVal_Timepoint[index] <- fit$"p-value"[2]
-      # pVal_Surgery[index] <- fit$"p-value"[3]
-      # pVal_Weight_kg[index] <- fit$"p-value"[4]
+      tryCatch({
+        mlm <- lme( DataCol ~ Timepoint, method = "REML", random = ~1 | PatientID, data = df )
+        fit <- anova(mlm)
+        pVal_Timepoint[index] <<- fit$"p-value"[2]
+        # pVal_Surgery[index] <<- fit$"p-value"[3]
+        # pVal_Weight_kg[index] <<- fit$"p-value"[4]
+      }, error = function(e) {
+        message("lme convergence error at ", betaName, " percentile ", i, ": ", conditionMessage(e))
+        pVal_Timepoint[index] <<- NA
+        # pVal_Surgery[index] <<- NA
+        # pVal_Weight_kg[index] <<- NA
+      })
       Uniqueness[index] <- betaName
       Percentile[index] <- i
-      
+
     } # for(i in my_list_of_percentiles)
-    
-    
+
+
   } # for (beta in c("Bray", "Kendall"))
-  
+
   # dFrame <- data.frame(Uniqueness, Percentile, pVal_Timepoint, pVal_Surgery, pVal_Weight_kg)
   dFrame <- data.frame(Uniqueness, Percentile, pVal_Timepoint)
   dFrame$Adj_pVal_Timepoint <- NA
   # dFrame$Adj_pVal_Surgery <- NA
   # dFrame$Adj_pVal_Weight_kg <- NA
-  
+
   for (beta in unique(dFrame$Uniqueness)) {
     dFrame$Adj_pVal_Timepoint[which(dFrame$Uniqueness == beta)] <- p.adjust(dFrame$pVal_Timepoint[which(dFrame$Uniqueness == beta)],method = "BH")
     # dFrame$Adj_pVal_Surgery[which(dFrame$Uniqueness == beta)] <- p.adjust(dFrame$pVal_Surgery[which(dFrame$Uniqueness == beta)],method = "BH")
     # dFrame$Adj_pVal_Weight_kg[which(dFrame$Uniqueness == beta)] <- p.adjust(dFrame$pVal_Weight_kg[which(dFrame$Uniqueness == beta)],method = "BH")
   } # for (beta in unique(dFrame$Uniqueness))
-  
+
   file.path <- paste0(outputDirLevelResults, taxaLevel, "_Uniqueness_Percentiles_90_100_by_Timepoint_MixedLinearModel_Results.tsv")
   write.table(dFrame, file.path, sep="\t",quote = FALSE, row.names = FALSE)
   
