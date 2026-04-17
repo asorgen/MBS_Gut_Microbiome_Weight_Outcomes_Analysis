@@ -54,6 +54,7 @@ library(nlme); message("nlme: Version ", packageVersion("nlme"))
 # library(tidyr); message("tidyr: Version ", packageVersion("tidyr"))
 library(data.table); message("data.table: Version ", packageVersion("data.table"))
 library(vegan); message("vegan: Version ", packageVersion("vegan"))
+library(dplyr); message("dplyr: Version ", packageVersion("dplyr"))
 
 
 # Script-specific edits -------------------------------------------------
@@ -253,9 +254,9 @@ plot <- ggplot() +
 
 
 testPlot <- ggplot() +
-   geom_point(data = df.RYGB.O, aes(x = time, y = median, color = "Median and IQR"), shape = 15, linewidth = 3) +
+   geom_point(data = df.RYGB.O, aes(x = time, y = median, color = "Median and IQR"), shape = 15, size = 3) +
    geom_errorbar(data=df.RYGB.O, mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color="black") + 
-   geom_point(data = df.SG.O, aes(x = time, y = median, color = "Median and IQR"), shape = 15, linewidth = 3) +
+   geom_point(data = df.SG.O, aes(x = time, y = median, color = "Median and IQR"), shape = 15, size = 3) +
    geom_errorbar(data=df.SG.O, mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color="black") + 
    geom_line(data = df.RYGB.O, aes(x = time, y = mean, color = "RYGB (mean)") , linewidth=1) +
    geom_line(data = df.SG.O, aes(x = time, y = mean, color = "SG (mean)"), linewidth=1) +
@@ -398,8 +399,8 @@ plot <- ggplot() +
    geom_errorbar(data=df.RYGB.O, mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color="black") + 
    geom_point(data = df.SG.O, aes(x = time, y = median, color = "Median and IQR (observed)"), shape = 15, size = 3) +
    geom_errorbar(data=df.SG.O, mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color="black") + 
-   geom_line(data = df.RYGB.M, aes(x = time, y = mean, color = "RYGB (modeled)") , size=1) +
-   geom_line(data = df.SG.M, aes(x = time, y = mean, color = "SG (modeled)"), size=1) +
+   geom_line(data = df.RYGB.M, aes(x = time, y = mean, color = "RYGB (modeled)") , linewidth=1) +
+   geom_line(data = df.SG.M, aes(x = time, y = mean, color = "SG (modeled)"), linewidth=1) +
    labs(x = "Follow-up time (months)", y = "Weight Change (%)") +
    scale_colour_manual(name="", values=c("black","blue", "forestgreen"),
                        guide = guide_legend(override.aes = list(
@@ -427,8 +428,8 @@ plot <- ggplot() +
    geom_errorbar(data=df.RYGB.O, mapping=aes(x=time, ymin=(mean-se), ymax=(mean+se)), width=0.5, linewidth=0.5, color="black") + 
    geom_point(data = df.SG.O, aes(x = time, y = mean, color = "Mean and SE (observed)"), shape = 15, size = 3) +
    geom_errorbar(data=df.SG.O, mapping=aes(x=time, ymin=(mean-se), ymax=(mean+se)), width=0.5, linewidth=0.5, color="black") + 
-   geom_line(data = df.RYGB.M, aes(x = time, y = mean, color = "RYGB (modeled)") , size=1) +
-   geom_line(data = df.SG.M, aes(x = time, y = mean, color = "SG (modeled)"), size=1) +
+   geom_line(data = df.RYGB.M, aes(x = time, y = mean, color = "RYGB (modeled)") , linewidth=1) +
+   geom_line(data = df.SG.M, aes(x = time, y = mean, color = "SG (modeled)"), linewidth=1) +
    labs(x = "Follow-up time (months)", y = "Weight Change (%)") +
    scale_colour_manual(name="", values=c("black","blue", "forestgreen"),
                        guide = guide_legend(override.aes = list(
@@ -732,15 +733,15 @@ for (z in 1:length(surgTypes)) {
       plot <- plot + 
          geom_point(data = df.C.O, aes(x = time, y = median), color = Palette[i], shape = (14+i), size = 3) +
          geom_errorbar(data=df.C.O, mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color=Palette[i]) + 
-         geom_line(data = df.C.M, aes(x = time, y = mean), color = Palette[i], size=1) +
+         geom_line(data = df.C.M, aes(x = time, y = mean), color = Palette[i], linewidth=1) +
          annotate("text", x = 25, y = df.C.O$median[nrow(df.C.M)], hjust = 0, label = label, color = Palette[i])+
          coord_cartesian(xlim = c(0, 25), # This focuses the x-axis on the range of interest
                          clip = 'off') +   # This keeps the labels from disappearing
          theme(legend.title = element_blank(),
                legend.spacing.y = unit(0, "mm"), 
                panel.border = element_blank(),
-               axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
-               axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black"),
+               axis.line.x = element_line(linewidth = 0.5, linetype = "solid", colour = "black"),
+               axis.line.y = element_line(linewidth = 0.5, linetype = "solid", colour = "black"),
                # aspect.ratio = 1, axis.text = element_text(colour = 1, size = 12),
                legend.background = element_blank(),
                legend.box.background = element_rect(colour = "black"),
@@ -754,8 +755,8 @@ for (z in 1:length(surgTypes)) {
       geom_errorbar(data=df.C.O.List[[1]], mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color="black") + 
       geom_point(data = df.C.O.List[[2]], aes(x = time, y = median, color = "Group median and IQR (observed)"), shape = 15, size = 3) +
       geom_errorbar(data=df.C.O.List[[2]], mapping=aes(x=time, ymin=q1, ymax=q3), width=0.5, linewidth=0.5, color="black") + 
-      geom_line(data = df.C.M.List[[1]], aes(x = time, y = mean, color = "Group trajectory (modeled)") , size=1) +
-      geom_line(data = df.C.M.List[[2]], aes(x = time, y = mean, color = "Group trajectory (modeled)"), size=1) +
+      geom_line(data = df.C.M.List[[1]], aes(x = time, y = mean, color = "Group trajectory (modeled)") , linewidth=1) +
+      geom_line(data = df.C.M.List[[2]], aes(x = time, y = mean, color = "Group trajectory (modeled)"), linewidth=1) +
       labs(x = "Follow-up time (months)", y = "Weight Change (%)") +
       scale_colour_manual(name="", values=c("grey","grey"),
                           guide = guide_legend(override.aes = list(
@@ -989,8 +990,8 @@ for (i in ng) {
       theme(legend.title = element_blank(),
             legend.spacing.y = unit(0, "mm"), 
             panel.border = element_blank(),
-            axis.line.x = element_line(size = 0.5, linetype = "solid", colour = "black"),
-            axis.line.y = element_line(size = 0.5, linetype = "solid", colour = "black"),
+            axis.line.x = element_line(linewidth = 0.5, linetype = "solid", colour = "black"),
+            axis.line.y = element_line(linewidth = 0.5, linetype = "solid", colour = "black"),
             # aspect.ratio = 1, axis.text = element_text(colour = 1, size = 12),
             legend.background = element_blank(),
             legend.box.background = element_rect(colour = "black"),
