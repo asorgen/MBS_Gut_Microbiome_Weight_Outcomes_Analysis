@@ -1,9 +1,48 @@
-## ----include=FALSE--------------------------------------------
-knitr::opts_chunk$set(echo=FALSE)
-set.seed(1989)
-rm(list=ls())
+#Author: Alicia Sorgen
+#Description: GMM analysis by surgery type
 
-## ----Library, include=FALSE-----------------------------------
+# Set up ------------------------------------------------------------------
+rm(list=ls())
+set.seed(1989)
+H1 = function(comment) {
+   delim = "#"
+   side = "#"
+   fill = " "
+   maxLen <- 90
+   lineLen <- 60
+   message("")
+   message(paste0(strrep(delim, maxLen)))
+   if (nchar(comment) > lineLen) {
+      cut <- strsplit(comment, " ")
+      line <- ""
+      for (word in cut[[1]]) {
+         if ((nchar(line) + 1 + nchar(word)) > lineLen) {
+            edge1 <- round((maxLen - nchar(line))/2, 0) - 2
+            edge2 <- maxLen - edge1 - nchar(line) - 4
+            line_print <- paste0(side, strrep(fill, edge1), " ", line, " ", strrep(fill, edge2), side)
+            message(line_print)
+            line <- word
+         } else {
+            line <- paste(line, word)
+         }
+      }
+      edge1 <- round((maxLen - nchar(line))/2, 0) - 2
+      edge2 <- maxLen - edge1 - nchar(line) - 4
+      line_print <- paste0(side, strrep(fill, edge1), " ", line, " ", strrep(fill, edge2), side)
+      message(line_print)
+   } else {
+      edge1 <- round((maxLen - nchar(comment))/2, 0) - 2
+      edge2 <- maxLen - edge1 - nchar(comment) - 4
+      line_print <- paste0(side, strrep(fill, edge1), " ", comment, " ", strrep(fill, edge2), side)
+      message(line_print)
+   }
+   message(paste0(strrep(delim, maxLen)))
+   message("")
+}
+
+
+# Libraries ----------------------------------------------------------------
+H1("Libraries")
 R <- sessionInfo()
 message(R$R.version$version.string); rm(R)
 
@@ -21,67 +60,53 @@ library(data.table); message("data.table: Version ", packageVersion("data.table"
 library(dplyr); message("dplyr: Version ", packageVersion("dplyr"))
 
 
-
-## ----Script-Edits---------------------------------------------
-ANALYSIS <- "MetaPhlAn2_microbiome"
-
-moduleRoot <- paste0("GMM_Analysis_Surgery")
-included <- c(  0
-                , 1
-                , 6
-                , 12
-                , 18
-                , 24
-)
+# Script-specific edits -------------------------------------------------
 params <- vector()
-params <- c(params, "~/UNCC/Projects/Bariatric_Surgery/Git_Repositories/gut-microbiome-bariatric-weight-outcomes")
+params <- c(params, getOption("mbs.pipe_root", default = stop("Set options(mbs.pipe_root = ...) in your local .Rprofile (gitignored)")))
 params <- c(params, "RYGB")
 
+included <- c(0, 1, 6, 12, 18, 24)
 
-## ----Working-Environment, include=FALSE-----------------------
+
+# Set working environment ---------------------------------------------------------
+H1("Working Environment")
 args <- commandArgs(trailingOnly = TRUE)
 
 if (length(args) == 0) {
-  args <- params
+   args <- params
 }
 
-if (args[1] == "BLJ") {
-  message("\n************* Running in BioLockJ *************")
-} else {
-  message("\n************* Running locally *************")
-  gitRoot    <- args[1]
-  inputEnv <- Sys.getenv("INPUT_ROOT"); gitInput <- if (nchar(inputEnv) > 0) inputEnv else file.path(gitRoot, "..", "Data")
-  gitScripts <- file.path(gitRoot, "analysis", "Rscripts")
+message("\n************* Running locally *************")
+proj_root    <- args[1]
+message("Project root directory: ", proj_root, "\n")
+inputEnv <- Sys.getenv("INPUT_ROOT"); input_root <- if (nchar(inputEnv) > 0) inputEnv else file.path(dirname(proj_root), "Data")
+script_root <- file.path(proj_root, basename(proj_root), "analysis", "Rscripts")
 
-  resultsEnv <- Sys.getenv("RESULTS_ROOT"); root <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(gitRoot, "Results")
-  dir.create(root, showWarnings = FALSE, recursive = TRUE)
+resultsEnv <- Sys.getenv("RESULTS_ROOT"); pipeRoot <- if (nchar(resultsEnv) > 0) resultsEnv else file.path(proj_root, gsub('Analysis', 'Results', basename(proj_root)))
+# dir.create(pipeRoot, showWarnings = FALSE, recursive = TRUE)
 
-  if (length(list.files(file.path(root, "input"), recursive = TRUE)) == 0) {
-    dir.create(file.path(root, "input"), showWarnings = FALSE, recursive = TRUE)
-    invisible(file.copy(list.files(gitInput, full.names = TRUE, include.dirs = TRUE),
-                        file.path(root, "input"), recursive = TRUE))
-  }
+# if (length(list.files(file.path(pipeRoot, "input"), recursive = TRUE)) == 0) {
+#    dir.create(file.path(pipeRoot, "input"), showWarnings = FALSE, recursive = TRUE)
+#    invisible(file.copy(list.files(input_root, full.names = TRUE, include.dirs = TRUE),
+#                        file.path(pipeRoot, "input"), recursive = TRUE))
+# }
 
-  module <- paste0("5.1_GMM_Analysis_", args[2])
-  moduleDir <- file.path(root, module)
-  dir.create(moduleDir, showWarnings = FALSE)
+module <- paste0("5.1_GMM_Analysis_", args[2])
+moduleDir <- file.path(pipeRoot, module)
+# dir.create(moduleDir, showWarnings = FALSE)
 
-  outputDir <- file.path(moduleDir, "output")
-  dir.create(outputDir, showWarnings = FALSE)
-  unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
+outputDir <- file.path(moduleDir, "output/")
+# dir.create(outputDir, showWarnings = FALSE)
+# unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
 
-  pipeRoot <- root
-}
-if (args[1] == "BLJ") {
-  pipeRoot  <- dirname(dirname(getwd()))
-  moduleDir <- dirname(getwd())
-}
+rm(proj_root, inputEnv, resultsEnv, module, params)
 
 
-
-## ----Functions------------------------------------------------
-funcScript <- if (args[1] == "BLJ") file.path(moduleDir, "resources", "functions.R") else file.path(gitScripts, "functions.R")
-source(funcScript)
+# Set functions ------------------------------------------------
+H1("Functions")
+message("Loading functions from: ", script_root)
+funcScript <- file.path(script_root, "functions.R")
+source(funcScript); rm(funcScript)
 
 
 
