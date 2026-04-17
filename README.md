@@ -17,15 +17,14 @@ This repository contains the full analysis pipeline examining whether early post
 ```
 .
 ├── analysis/
-│   ├── BLJ_config_files/     # BioLockJ pipeline configuration files
-│   ├── input/
-│   │   ├── metadataTables/   # Patient weight and clinical metadata (not included)
-│   │   ├── MetaPhlAn2TaxaTables/  # Taxonomic abundance tables (not included)
-│   │   └── Kraken2TaxaTables/     # Taxonomic abundance tables (not included)
-│   └── Rscripts/             # All analysis R scripts
-├── Final_Tables_Figures/     # Publication-ready outputs
-└── Results_Presentations/    # Interim results and presentations
+│   ├── BLJ_config_files/   # archived BioLockJ pipeline configuration files
+│   ├── Rscripts/           # analysis R scripts
+│   └── run_analysis.sh     # pipeline orchestration script
+├── Final_Tables_Figures/   # publication-ready outputs
+└── Results_Presentations/  # interim results and presentations
 ```
+
+Results are written to a sibling directory `../MBS_Gut_Microbiome_Weight_Outcomes_Results/` outside this repo. Input data is read from `../../../Data/` and is not included (see [Data Availability](#data-availability)).
 
 ---
 
@@ -48,19 +47,49 @@ Raw paired-end whole metagenome shotgun sequencing reads were processed prior to
 
 ## Statistical Analysis (`analysis/`)
 
-Downstream statistical analysis is implemented in R and managed with [BioLockJ](https://github.com/BioLockJ-Dev-Team/BioLockJ). The pipeline configuration used for the publication is [`analysis/BLJ_config_files/MetaPhlAn2_microbiome_analysis.properties`](analysis/BLJ_config_files/MetaPhlAn2_microbiome_analysis.properties). See [`analysis/BLJ_config_files/README.md`](analysis/BLJ_config_files/README.md) for descriptions of all pipeline configurations.
+Downstream statistical analysis is implemented in R and orchestrated by [`analysis/run_analysis.sh`](analysis/run_analysis.sh). See [`analysis/README.md`](analysis/README.md) for full usage details.
+
+### Pipeline Sections
+
+| Section | Description |
+|---|---|
+| 1 | Patient & weight characteristics — BMI, excess weight loss, responder classification, tertile group assignment |
+| 2 | Taxa data preparation — merge MetaPhlAn2/Kraken2 tables with patient metadata at all taxonomic levels |
+| 3 | Taxa–weight associations — univariate linear models, Kendall rank correlations, surgery-type comparisons |
+| 4 | Longitudinal analyses — alpha/beta diversity, microbiome uniqueness, mixed linear models for taxa trajectories |
+| 5 | Group analyses & prediction — tertile comparisons, GMM trajectory clustering, LCGA, prediction models |
+
+### Quick Start
+
+```bash
+# Run all incomplete modules
+bash analysis/run_analysis.sh
+
+# Re-run everything from scratch
+bash analysis/run_analysis.sh --clean
+
+# Run a specific section range
+bash analysis/run_analysis.sh --from 2 --to 4
+
+# Run a single module
+bash analysis/run_analysis.sh 3.1_Microbiome_WeightLoss_Associations_uLM.R
+```
+
+### First-Time Setup
+
+`analysis/.Rprofile` must exist and set the `mbs.pipe_root` option to the local repo path. This file is not tracked in git. Create it once:
+
+```r
+# analysis/.Rprofile
+options(mbs.pipe_root = "/path/to/this/repo")
+```
 
 ---
 
 ## Dependencies
 
 - **R** (≥ 4.0)
-- Key R packages: `nlme`, `ggplot2`, `ggpubr`, `vegan`, `rstatix`, `randomForest`, `data.table`, `stringr`, `tidyr`, `gridExtra`
-- **BioLockJ** for pipeline execution
-- **KneadData** for quality trimming and host decontamination
-- **PEAR** for paired-end read merging
-- **Kraken2** and **MetaPhlAn2** for taxonomic profiling
-- **HUMAnN2** for functional pathway profiling
+- Key R packages: `nlme`, `ggplot2`, `ggpubr`, `vegan`, `rstatix`, `randomForest`, `data.table`, `stringr`, `tidyr`, `gridExtra`, `scales`
 
 ---
 
