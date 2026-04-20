@@ -154,7 +154,7 @@ for (level in levels) {
   dir.create(outputLevel, showWarnings = FALSE)
   
   file.path <- paste0(inputDir,level, logCountFile)
-  logCounts<-read.table(file.path, sep="\t", header = TRUE, check.names = FALSE)
+  logCounts<-import_file(file.path)
   
   startAbundanceIndex <- which(colnames(logCounts)=="ResponderStatus")+1
   
