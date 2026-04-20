@@ -148,6 +148,8 @@ for (level in levels) {
         Table <- import_file(file.path(normDir, paste0("bs_taxa_", level, "_norm_log10.tsv")))
         } else {Table <- getRelAbun(import_file(file.path(rawDir, paste0("bs_taxa_", level, "_raw.tsv"))))}
     
+     if (level == "genus") Table <- Table[,-which(colnames(Table) %like% "virus")]
+     
     SampleID <- sapply(strsplit(Table$SampleID, "_"), "[", 1)
     # Strip aliquot suffixes (e.g. "1-241-00-Aliq1" -> "1-241-00") before format conversion
     SampleID <- sub("-Aliq[0-9]+$", "", SampleID)

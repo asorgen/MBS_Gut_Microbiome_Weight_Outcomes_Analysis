@@ -123,7 +123,7 @@ source(funcScript); rm(funcScript)
 ##----- Set up input ------------------------------------------------------------------------------
 
 classifier <- args[2]
-inputDir = file.path(pipeRoot, "input")
+inputDir = file.path(input_root, "microbiome")
 taxonomyFile <- "Full_Taxonomy.tsv"
 
 prevModule <- paste0("Taxa_over_time_MLM")
@@ -143,7 +143,7 @@ comparisons <- c("1_v_0", "6_v_0", "12_v_0", "18_v_0", "24_v_0",
                  "24_v_18")
 ##----- Generate heatmaps (unadjusted p-values) ----------------------------------------------------
 
-taxonomyTable <- read.delim(file.path(inputDir, "microbiome", taxonomyFile), sep="\t", header = TRUE)
+taxonomyTable <- read.delim(file.path(inputDir, taxonomyFile), sep="\t", header = TRUE)
 
 for (level in levels) {
   ##---- Read in data -----
