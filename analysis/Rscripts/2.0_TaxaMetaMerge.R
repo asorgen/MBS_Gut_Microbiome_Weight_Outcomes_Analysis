@@ -117,12 +117,12 @@ source(funcScript); rm(funcScript)
 ##### Set up input #####
 classifier <- args[2]
 
-inputDir = file.path(pipeRoot, "input")
-rawDir   = file.path(inputDir, "microbiome", "taxa_raw")
-normDir  = file.path(inputDir, "microbiome", "taxa_normalized")
+# inputDir = file.path(input_root, "Data")
+rawDir   = file.path(input_root, "microbiome", "taxa_raw")
+normDir  = file.path(input_root, "microbiome", "taxa_normalized")
 # sampleID_corrections.R defines sample ID corrections specific to this dataset.
 # This file is not included in the public repository; see .gitignore.
-source(file.path(inputDir, "metadata", "sampleID_corrections.R"))
+source(file.path(input_root, "metadata", "sampleID_corrections.R"))
 rawFile <- "_rawCounts"
 logFile <- "_LogNormalizedCounts"
 relFile <- "_RelativeAbundanceCounts"
@@ -134,20 +134,21 @@ metaFile <- "metadata.tsv"
 output = file.path(moduleDir,"output/")
 
 ##### Merge data #####
-metaTable <- read.delim(paste0(metaDir, metaFile), sep="\t",header = TRUE)
+metaTable <- import_file(paste0(metaDir, metaFile))
 
 
 for (level in levels) {
   
-  for (File in c(rawFile, logFile, relFile)) {
-
-    if (File == logFile && level == "species") next  # no species-level log-normalized file in Data
-
-    if (File == rawFile)      Table <- read.delim(file.path(rawDir,  paste0("bs_taxa_", level, "_raw.tsv")),         sep="\t", header = TRUE, row.names = 1)
-    else if (File == logFile) Table <- read.delim(file.path(normDir, paste0("bs_taxa_", level, "_norm_log10.tsv")), sep="\t", header = TRUE, row.names = 1)
-    else                      Table <- getRelAbun(read.delim(file.path(rawDir, paste0("bs_taxa_", level, "_raw.tsv")), sep="\t", header = TRUE, row.names = 1))
+  for (File in c(rawFile, logFile)) {
+     if (File == logFile && level == "species") next  # no species-level log-normalized file in Data
+     
+     if (File == rawFile) {
+        Table <- import_file(file.path(rawDir,  paste0("bs_taxa_", level, "_raw.tsv")))
+     } else if (File == logFile) {
+        Table <- import_file(file.path(normDir, paste0("bs_taxa_", level, "_norm_log10.tsv")))
+        } else {Table <- getRelAbun(import_file(file.path(rawDir, paste0("bs_taxa_", level, "_raw.tsv"))))}
     
-    SampleID <- sapply(strsplit(rownames(Table), "_"), "[", 1)
+    SampleID <- sapply(strsplit(Table$SampleID, "_"), "[", 1)
     # Strip aliquot suffixes (e.g. "1-241-00-Aliq1" -> "1-241-00") before format conversion
     SampleID <- sub("-Aliq[0-9]+$", "", SampleID)
     # Convert taxa SampleID format "site-patient-timepoint" -> "BIO-site-patient-ZZtimepoint"
@@ -166,13 +167,14 @@ for (level in levels) {
       for (i in dup) {
         
         df <- Table[Table$SampleID == i,]
-        rowSum <- rowSums(df[2:ncol(df)])
+        rowSum <- rowSums(df[3:ncol(df)])
         dupRows <- c(dupRows, which(rownames(Table) %in% rownames(df)[which(rowSum != max(rowSum))]))
         
       } # for (i in dup)
       
     }    
     Table <- Table[-(dupRows),]
+    Table <- Table[,-2]
     
     df <- merge(metaTable, Table, by = "SampleID", all = TRUE)
     
