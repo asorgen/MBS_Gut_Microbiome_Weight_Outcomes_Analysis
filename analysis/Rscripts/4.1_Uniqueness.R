@@ -3,8 +3,9 @@
 #Description: 
 # getwd()
 
-# Script set up -----------------------------------------------------------------------------------------------------------------------
+# Set up ------------------------------------------------------------------
 rm(list=ls())
+set.seed(1989)
 H1 = function(comment) {
    delim = "#"
    side = "#"
@@ -40,14 +41,12 @@ H1 = function(comment) {
    message(paste0(strrep(delim, maxLen)))
    message("")
 }
-set.seed(1989)
 
 
-
-##### Libraries #####
+# Libraries ----------------------------------------------------------------
 H1("Libraries")
 R <- sessionInfo()
-message(R$R.version$version.string)
+message(R$R.version$version.string); rm(R)
 
 library(stringr); message("stringr: Version ", packageVersion("stringr"))
 library(ggplot2); message("ggplot2: Version ", packageVersion("ggplot2"))
@@ -88,6 +87,7 @@ if (length(args) == 0) {
 
 message("\n************* Running locally *************")
 proj_root    <- args[1]
+message("Project root directory: ", proj_root, "\n")
 inputEnv <- Sys.getenv("INPUT_ROOT"); input_root <- if (nchar(inputEnv) > 0) inputEnv else file.path(dirname(proj_root), "Data")
 script_root <- file.path(proj_root, basename(proj_root), "analysis", "Rscripts")
 
@@ -103,7 +103,7 @@ resultsEnv <- Sys.getenv("RESULTS_ROOT"); pipeRoot <- if (nchar(resultsEnv) > 0)
 moduleDir <- file.path(pipeRoot, module)
 # dir.create(moduleDir, showWarnings = FALSE)
 
-outputDir <- file.path(moduleDir, "output")
+outputDir <- file.path(moduleDir, "output/")
 # dir.create(outputDir, showWarnings = FALSE)
 unlink(list.files(outputDir, full.names = TRUE, recursive = TRUE))
 
@@ -112,10 +112,11 @@ rm(proj_root, inputEnv, resultsEnv, module, params)
 
 
 
-##### Set up functions file #####
+# Set functions ------------------------------------------------
 H1("Functions")
-funcScript <- if (args[1] == "BLJ") file.path(moduleDir, "resources", "functions.R") else file.path(script_root, "functions.R")
-source(funcScript)
+message("Loading functions from: ", script_root)
+funcScript <- file.path(script_root, "functions.R")
+source(funcScript); rm(funcScript)
 
 ##### Set up input #####
 H1("Input")
