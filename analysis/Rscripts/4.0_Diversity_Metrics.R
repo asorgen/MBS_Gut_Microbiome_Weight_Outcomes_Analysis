@@ -143,7 +143,8 @@ for (taxaLevel in taxaLevels) {
   dir.create(outputDirLevel, showWarnings = FALSE)
   
   file.path <- paste0(inputDir, taxaLevel,"_LogNormalizedCounts_", classifier, ".tsv")
-  myT <- read.table(file.path, sep='\t', header = TRUE)
+  myT <- import_file(file.path)
+  # myT <- read.table(file.path, sep='\t', header = TRUE)
   rownames(myT) <- myT$SampleID
   
   taxaStart <- which(colnames(myT) == "ResponderStatus") + 1
