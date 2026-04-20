@@ -86,6 +86,23 @@ options(mbs.pipe_root = "/path/to/this/repo")
 
 ---
 
+## Skills & Methods
+
+| Domain | Methods / Tools |
+|---|---|
+| **Microbiome profiling** | MetaPhlAn2, Kraken2, HUMAnN2, KneadData, PEAR |
+| **Longitudinal statistics** | Mixed linear models (`nlme`), repeated-measures designs across 6 timepoints |
+| **Diversity analysis** | Shannon alpha diversity, Bray-Curtis beta diversity, PERMANOVA |
+| **Trajectory modeling** | Latent class growth analysis (LCGA), group-based mixture modeling (GMM) |
+| **Association testing** | Univariate linear regression, Kendall rank correlation, multi-level FDR correction |
+| **Prediction modeling** | Random forest classification of weight-loss outcome groups |
+| **Data wrangling** | R (`data.table`, `tidyr`, `stringr`), multi-classifier/multi-taxonomic-level merging |
+| **Visualization** | `ggplot2`, `ggpubr`, heatmaps, volcano plots, trajectory plots |
+| **Reproducibility** | Modular bash-orchestrated pipeline with input/output/log snapshots per module |
+| **Privacy & compliance** | PHI exclusion practices; patient data fully separated from analysis code |
+
+---
+
 ## Dependencies
 
 - **R** (≥ 4.0)
