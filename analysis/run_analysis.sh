@@ -164,6 +164,7 @@ classifier="MetaPhlAn2"
     skip 5 || run_module 5.1_GMM_Analysis_SG     5.1_GMM_Analysis_Surgery.R SG
     skip 5 || run_module 5.2_LCGA2_RYGB_2Class   5.2_LCGA2_Analysis.R       LCGA 2 RYGB Univariate Model2
     skip 5 || run_module 5.3_PredictionModels    5.3_PredictionModels.R     ${classifier} 24
+    skip 5 || run_module 5.4_LCGA_Heatmap        5.4_LCGA_Heatmap.R
 
     stop 5 && exit 0
 
